@@ -5,7 +5,7 @@
 package cocoa
 
 /*
-#cgo CFLAGS: -I./../../ -x objective-c
+#cgo CFLAGS: -x objective-c
 #cgo LDFLAGS: -framework Cocoa
 #include <Cocoa/Cocoa.h>
 */
@@ -14,13 +14,13 @@ import "unsafe"
 
 //export _GoDestroySignal
 func _GoDestroySignal(window unsafe.Pointer) {
-    Logger.Println("_GoDestroySignal")
-    ptr := uintptr(window)
-    if callback,ok := destroySignalCallbacks[ptr]; ok {
-        delete(destroySignalCallbacks, ptr)
-        callback()
-    } else {
-        Logger.Println("WARNING: _GoDestroySignal failed, callback not found")
-    }
+	Logger.Println("_GoDestroySignal")
+	ptr := uintptr(window)
+	if callback, ok := destroySignalCallbacks[ptr]; ok {
+		delete(destroySignalCallbacks, ptr)
+		callback()
+	} else {
+		Logger.Println("WARNING: _GoDestroySignal failed, callback not found")
+	}
 
 }
