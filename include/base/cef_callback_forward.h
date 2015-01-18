@@ -1,4 +1,5 @@
-// Copyright (c) 2014 Marshall A. Greenblatt. All rights reserved.
+// Copyright (c) 2014 Marshall A. Greenblatt. Portions copyright (c) 2011
+// Google Inc. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
@@ -27,58 +28,32 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-
-#ifndef CEF_INCLUDE_INTERNAL_CEF_TYPES_LINUX_H_
-#define CEF_INCLUDE_INTERNAL_CEF_TYPES_LINUX_H_
+#ifndef INCLUDE_BASE_CEF_CALLBACK_FORWARD_H_
+#define INCLUDE_BASE_CEF_CALLBACK_FORWARD_H_
 #pragma once
 
-#include "include/internal/cef_build.h"
+#if defined(BASE_CALLBACK_FORWARD_H_)
+// Do nothing if the Chromium header has already been included.
+// This can happen in cases where Chromium code is used directly by the
+// client application. When using Chromium code directly always include
+// the Chromium header first to avoid type conflicts.
+#elif defined(BUILDING_CEF_SHARED)
+// When building CEF include the Chromium header directly.
+#include "base/callback_forward.h"
+#else  // !BUILDING_CEF_SHARED
+// The following is substantially similar to the Chromium implementation.
+// If the Chromium implementation diverges the below implementation should be
+// updated to match.
 
-#if defined(OS_LINUX)
-#include <gtk/gtk.h>
-#include "include/internal/cef_string.h"
+namespace base {
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+template <typename Sig>
+class Callback;
 
-// Handle types.
-#define cef_cursor_handle_t GdkCursor*
-#define cef_event_handle_t GdkEvent*
-#define cef_window_handle_t GtkWidget*
-#define cef_text_input_context_t void*
+typedef Callback<void(void)> Closure;
 
-///
-// Structure representing CefExecuteProcess arguments.
-///
-typedef struct _cef_main_args_t {
-  int argc;
-  char** argv;
-} cef_main_args_t;
+}  // namespace base
 
-///
-// Class representing window information.
-///
-typedef struct _cef_window_info_t {
-  // Pointer for the parent GtkBox widget.
-  cef_window_handle_t parent_widget;
+#endif  // !!BUILDING_CEF_SHARED
 
-  // If window rendering is disabled no browser window will be created. Set
-  // |parent_widget| to the window that will act as the parent for popup menus,
-  // dialog boxes, etc.
-  int window_rendering_disabled;
-
-  // Set to true to enable transparent painting.
-  int transparent_painting;
-
-  // Pointer for the new browser widget.
-  cef_window_handle_t widget;
-} cef_window_info_t;
-
-#ifdef __cplusplus
-}
-#endif
-
-#endif  // OS_LINUX
-
-#endif  // CEF_INCLUDE_INTERNAL_CEF_TYPES_LINUX_H_
+#endif  // INCLUDE_BASE_CEF_CALLBACK_FORWARD_H_

@@ -38,11 +38,11 @@
 #define CEF_INCLUDE_CAPI_CEF_REQUEST_CAPI_H_
 #pragma once
 
+#include "include/capi/cef_base_capi.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-#include "include/capi/cef_base_capi.h"
 
 struct _cef_post_data_element_t;
 struct _cef_post_data_t;
@@ -146,8 +146,8 @@ typedef struct _cef_request_t {
       const cef_string_t* url);
 
   ///
-  // Get the resource type for this request. Accurate resource type information
-  // may only be available in the browser process.
+  // Get the resource type for this request. Only available in the browser
+  // process.
   ///
   cef_resource_type_t (CEF_CALLBACK *get_resource_type)(
       struct _cef_request_t* self);
