@@ -38,13 +38,13 @@
 #define CEF_INCLUDE_CAPI_CEF_DISPLAY_HANDLER_CAPI_H_
 #pragma once
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include "include/capi/cef_base_capi.h"
 #include "include/capi/cef_browser_capi.h"
 #include "include/capi/cef_frame_capi.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 
 ///
@@ -82,9 +82,8 @@ typedef struct _cef_display_handler_t {
       struct _cef_browser_t* browser, cef_string_t* text);
 
   ///
-  // Called when the browser receives a status message. |text| contains the text
-  // that will be displayed in the status message and |type| indicates the
-  // status message type.
+  // Called when the browser receives a status message. |value| contains the
+  // text that will be displayed in the status message.
   ///
   void (CEF_CALLBACK *on_status_message)(struct _cef_display_handler_t* self,
       struct _cef_browser_t* browser, const cef_string_t* value);

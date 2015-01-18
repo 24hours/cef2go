@@ -2,9 +2,7 @@
 // License: BSD 3-clause.
 // Website: https://github.com/CzarekTomczak/cefcapi
 
-#pragma once
-
-#include "handlers/cef_base.h"
+#include "cef_base.h"
 #include "include/capi/cef_app_capi.h"
 
 // ----------------------------------------------------------------------------
@@ -30,7 +28,8 @@
 void CEF_CALLBACK on_before_command_line_processing(
         struct _cef_app_t* self, const cef_string_t* process_type,
         struct _cef_command_line_t* command_line) {
-    DEBUG_CALLBACK("on_before_command_line_processing\n");
+    releaseVoid((void *) command_line);
+    goDebugLog("on_before_command_line_processing\n");
 }
 
 ///
@@ -42,7 +41,8 @@ void CEF_CALLBACK on_before_command_line_processing(
 void CEF_CALLBACK on_register_custom_schemes(
         struct _cef_app_t* self,
         struct _cef_scheme_registrar_t* registrar) {
-    DEBUG_CALLBACK("on_register_custom_schemes\n");
+    releaseVoid((void *) registrar);
+    goDebugLog("on_register_custom_schemes\n");
 }
 
 ///
@@ -53,7 +53,7 @@ void CEF_CALLBACK on_register_custom_schemes(
 ///
 struct _cef_resource_bundle_handler_t*
         CEF_CALLBACK get_resource_bundle_handler(struct _cef_app_t* self) {
-    DEBUG_CALLBACK("get_resource_bundle_handler\n");
+    goDebugLog("get_resource_bundle_handler\n");
     return NULL;
 }
 
@@ -61,10 +61,10 @@ struct _cef_resource_bundle_handler_t*
 // Return the handler for functionality specific to the browser process. This
 // function is called on multiple threads in the browser process.
 ///
-struct _cef_browser_process_handler_t* 
+struct _cef_browser_process_handler_t*
         CEF_CALLBACK get_browser_process_handler(struct _cef_app_t* self) {
-    DEBUG_CALLBACK("get_browser_process_handler\n");
-    return NULL;
+    goDebugLog("get_browser_process_handler\n");
+    return go_GetBrowserProcessHandler(self);
 }
 
 ///
@@ -73,14 +73,15 @@ struct _cef_browser_process_handler_t*
 ///
 struct _cef_render_process_handler_t*
         CEF_CALLBACK get_render_process_handler(struct _cef_app_t* self) {
-    DEBUG_CALLBACK("get_render_process_handler\n");
+    goDebugLog("get_render_process_handler\n");
     return NULL;
 }
 
 void initialize_app_handler(cef_app_t* app) {
-    printf("initialize_app_handler\n");
+    goDebugLog("initialize_app_handler\n");
     app->base.size = sizeof(cef_app_t);
-    initialize_cef_base((cef_base_t*)app);
+    initialize_cef_base((cef_base_t*) app, "app_handler");
+    go_AddRef((cef_base_t*) app);
     // callbacks
     app->on_before_command_line_processing = on_before_command_line_processing;
     app->on_register_custom_schemes = on_register_custom_schemes;
