@@ -4,12 +4,10 @@
 
 
 #include <stdlib.h>
+#include <string.h>
 #include "cef_base.h"
 #include "include/capi/cef_client_capi.h"
 #include "include/capi/cef_frame_capi.h"
-
-
-
 
 int cef_frame_t_is_valid(struct _cef_frame_t* self)
 {

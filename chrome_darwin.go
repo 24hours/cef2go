@@ -21,15 +21,15 @@ import "C"
 import "unsafe"
 
 import (
+	log "github.com/cihub/seelog"
 	"os"
 )
 
 var _Argv []*C.char = make([]*C.char, len(os.Args))
 
-func FillMainArgs(mainArgs *C.struct__cef_main_args_t,
-	appHandle unsafe.Pointer) {
+func FillMainArgs(mainArgs *C.struct__cef_main_args_t, appHandle unsafe.Pointer) {
 	// On Mac appHandle is nil.
-	Logger.Println("FillMainArgs, argc=", len(os.Args))
+	log.Debug("FillMainArgs, argc=", len(os.Args))
 	for i, arg := range os.Args {
 		_Argv[C.int(i)] = C.CString(arg)
 	}
@@ -38,7 +38,7 @@ func FillMainArgs(mainArgs *C.struct__cef_main_args_t,
 }
 
 func FillWindowInfo(windowInfo *C.cef_window_info_t, hwnd unsafe.Pointer) {
-	Logger.Println("FillWindowInfo")
+	log.Debug("FillWindowInfo")
 
 	// Setting title isn't required for the CEF inner window.
 	// --

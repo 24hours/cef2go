@@ -4,6 +4,7 @@
 
 
 #include <stdlib.h>
+#include <string.h>
 #include "cef_base.h"
 #include "include/capi/cef_client_capi.h"
 #include "include/capi/cef_browser_capi.h"

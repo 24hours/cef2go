@@ -7,13 +7,11 @@
 #define CEF_BASE_H
 
 #include <stdio.h>
-#include "include/capi/cef_base_capi.h"
 #include <unistd.h>
-
-#define DEBUG_CALLBACK(x) { static int first_call = 1; if (first_call == 1) { first_call = 0; printf(x); } }
+#include "include/capi/cef_base_capi.h"
 
 cef_string_utf8_t * cefStringToUtf8(const cef_string_t * source);
-cef_string_t * cefString16CastToCefString(cef_string_utf16_t * source);
+cef_string_t * 	cefString16CastToCefString(cef_string_utf16_t * source);
 cef_string_utf16_t * cefStringCastToCefString16(cef_string_t * source);
 
 void CEF_CALLBACK add_ref(cef_base_t* self);

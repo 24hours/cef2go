@@ -24,7 +24,7 @@ void CEF_CALLBACK cef_browser_process_handler_t_on_before_child_process_launch(
 void CEF_CALLBACK cef_browser_process_handler_t_on_render_process_thread_created(
   struct _cef_browser_process_handler_t* self,
   struct _cef_list_value_t* extra_info) {
-  printf("cef_browser_process_handler_t_on_render_process_thread_created %X", (size_t) extra_info);
+  printf("cef_browser_process_handler_t_on_render_process_thread_created %X", (unsigned int)extra_info);
     OnRenderProcessThreadCreated(self, extra_info);
 }
 

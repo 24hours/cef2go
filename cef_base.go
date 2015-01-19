@@ -15,11 +15,15 @@ extern int releaseVoid(void * self);
 */
 import "C"
 import (
-	"fmt"
+	"errors"
+	log "github.com/cihub/seelog"
 	"sync"
 	"unsafe"
-	//"runtime/debug"
 )
+
+func init() {
+	log.ReplaceLogger(logger)
+}
 
 // a niave memory management.
 // allows us to keep track of allocated resources, and their counts
@@ -47,9 +51,9 @@ func go_AddRef(it unsafe.Pointer) {
 	defer refCountLock.Unlock()
 
 	if m, ok := memoryBridge[it]; ok {
-		//Logger.Println("Known Ref_Add: ", it)
 		m.Count++
 		memoryBridge[it] = m
+		log.Debug("Adding new reference: ", it)
 		return
 	}
 }
@@ -72,7 +76,7 @@ func go_Release(it unsafe.Pointer) int {
 			delete(memoryBridge, it)
 			return 1
 		} else {
-			//Logger.Println("Known Ref_Release: ", it)
+			log.Debug("Reduce reference count for: ", it)
 			memoryBridge[it] = m
 		}
 		return 0
@@ -82,7 +86,6 @@ func go_Release(it unsafe.Pointer) int {
 
 //export go_HasOneReferenceCount
 func go_HasOneReferenceCount(it unsafe.Pointer) int {
-	fmt.Println("ASD")
 	refCountLock.Lock()
 	defer refCountLock.Unlock()
 	if m, ok := memoryBridge[it]; ok {
@@ -108,6 +111,7 @@ func go_CreateRef(it unsafe.Pointer, name *C.char) {
 	if name != nil {
 		goname = C.GoString(name)
 	}
+	log.Info("Create Reference for", goname)
 	CreateRef(it, goname)
 }
 
@@ -143,4 +147,13 @@ func DumpRefs() {
 	// for k, v := range memoryBridge {
 	// 	Logger.Infof("%X : %#v", k, v)
 	// }
+}
+
+func getRef(it unsafe.Pointer) (error, MemoryManagedBridge) {
+	if m, ok := memoryBridge[it]; ok {
+		return nil, m
+	} else {
+		mem := MemoryManagedBridge{}
+		return errors.New("No reference found"), mem
+	}
 }

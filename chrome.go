@@ -22,7 +22,7 @@ CEF capi fixes
 
 /*
 #include <stdlib.h>
-#include "string.h"
+#include <string.h>
 #include "include/capi/cef_app_capi.h"
 #include "cef_base.h"
 #include "cef_app.h"
@@ -31,39 +31,17 @@ CEF capi fixes
 import "C"
 import "unsafe"
 import (
-	"log"
+	log "github.com/cihub/seelog"
 	"os"
 	"runtime"
 )
 
-var Logger2 SimpleLogger = defaultLogger{}
+var logger log.LoggerInterface
 
-// A simple interface to wrap a basic leveled logger.
-// The format strings to do not have newlines on them.
-type SimpleLogger interface {
-	Infof(fmt string, args ...interface{})
-	Warnf(fmt string, args ...interface{})
-	Errorf(fmt string, args ...interface{})
-	// Log the panic and exit.
-	Panicf(fmt string, args ...interface{})
+func init() {
+	logger, _ = log.LoggerFromWriterWithMinLevelAndFormat(os.Stdout, 0, "[%Level] %File:%Line: %Msg %n")
+	log.ReplaceLogger(logger)
 }
-
-type defaultLogger struct{}
-
-func (d defaultLogger) Infof(fmt string, args ...interface{}) {
-	log.Printf("[cef] "+fmt, args...)
-}
-func (d defaultLogger) Warnf(fmt string, args ...interface{}) {
-	log.Printf("[cef] "+fmt, args...)
-}
-func (d defaultLogger) Errorf(fmt string, args ...interface{}) {
-	log.Printf("[cef] "+fmt, args...)
-}
-func (d defaultLogger) Panicf(fmt string, args ...interface{}) {
-	log.Panicf("[cef] "+fmt, args...)
-}
-
-var Logger *log.Logger = log.New(os.Stdout, "[cef] ", log.Lshortfile)
 
 var _MainArgs *C.struct__cef_main_args_t
 
@@ -77,89 +55,16 @@ var _MainArgs *C.struct__cef_main_args_t
 // void cef_sandbox_info_destroy(void* sandbox_info);
 var _SandboxInfo unsafe.Pointer
 
-type Settings struct {
-	CachePath        string
-	LogSeverity      int
-	LogFile          string
-	ResourcesDirPath string
-	LocalesDirPath   string
-}
-
-type CefState int
-
-var (
-	STATE_DEFAULT  CefState = 0
-	STATE_ENABLED  CefState = 1
-	STATE_DISABLED CefState = 2
-)
-
-type BrowserSettings struct {
-	StandardFontFamily          string
-	FixedFontFamily             string
-	SerifFontFamily             string
-	SansSerifFontFamily         string
-	CursiveFontFamily           string
-	FantasyFontFamily           string
-	DefaultFontSize             int
-	DefaultFixedFontSize        int
-	MinimumFontSize             int
-	MinimumLogicalFontSize      int
-	DefaultEncoding             string
-	RemoteFonts                 CefState
-	Javascript                  CefState
-	JavascriptOpenWindows       CefState
-	JavascriptCloseWindows      CefState
-	JavascriptAccessClipboard   CefState
-	JavascriptDomPaste          CefState
-	CaretBrowsing               CefState
-	Java                        CefState
-	Plugins                     CefState
-	UniversalAccessFromFileUrls CefState
-	FileAccessFromFileUrls      CefState
-	WebSecurity                 CefState
-	ImageLoading                CefState
-	ImageShrinkStandaloneToFit  CefState
-	TextAreaResize              CefState
-	TabToLinks                  CefState
-	LocalStorage                CefState
-	Databases                   CefState
-	ApplicationCache            CefState
-	Webgl                       CefState
-	BackgroundColor             uint32
-}
-
-const (
-	LOGSEVERITY_DEFAULT = C.LOGSEVERITY_DEFAULT
-	LOGSEVERITY_VERBOSE = C.LOGSEVERITY_VERBOSE
-	LOGSEVERITY_INFO    = C.LOGSEVERITY_INFO
-	LOGSEVERITY_WARNING = C.LOGSEVERITY_WARNING
-	LOGSEVERITY_ERROR   = C.LOGSEVERITY_ERROR
-	// LOGSEVERITY_ERROR_REPORT = C.LOGSEVERITY_ERROR_REPORT
-	LOGSEVERITY_DISABLE = C.LOGSEVERITY_DISABLE
-)
-
-func SetLogger(logger *log.Logger) {
-	Logger = logger
-}
-
-func _InitializeGlobalCStructures() {
-	_MainArgs = (*C.struct__cef_main_args_t)(
-		C.calloc(1, C.sizeof_struct__cef_main_args_t))
-	CreateRef(unsafe.Pointer(_MainArgs), "MainArgs")
-}
-
 func ExecuteProcess(programHandle unsafe.Pointer, appHandle AppHandler) int {
-	Logger.Println("ExecuteProcess, args=", os.Args)
-
-	_InitializeGlobalCStructures()
+	_MainArgs = (*C.struct__cef_main_args_t)(C.calloc(1, C.sizeof_struct__cef_main_args_t))
+	CreateRef(unsafe.Pointer(_MainArgs), "MainArgs")
 	FillMainArgs(_MainArgs, programHandle)
-
 	// Sandbox info needs to be passed to both cef_execute_process()
 	// and cef_initialize().
 	// OFF: _SandboxInfo = C.cef_sandbox_info_create()
-	go_AddRef(unsafe.Pointer(appHandle.GetAppHandlerT().CStruct))
-	go_AddRef(unsafe.Pointer(_MainArgs))
-	go_AddRef(unsafe.Pointer(_SandboxInfo))
+	// go_AddRef(unsafe.Pointer(appHandle.GetAppHandlerT().CStruct))
+	// go_AddRef(unsafe.Pointer(_MainArgs))
+	// go_AddRef(unsafe.Pointer(_SandboxInfo))
 	var exitCode C.int = C.cef_execute_process(_MainArgs, appHandle.GetAppHandlerT().CStruct, _SandboxInfo)
 	if exitCode >= 0 {
 		os.Exit(int(exitCode))
@@ -168,7 +73,7 @@ func ExecuteProcess(programHandle unsafe.Pointer, appHandle AppHandler) int {
 }
 
 func Initialize(settings Settings, appHandler AppHandler) int {
-	Logger.Println("Initialize")
+	log.Info("Initialize")
 
 	if _MainArgs == nil {
 		// _MainArgs structure is initialized and filled in ExecuteProcess.
@@ -176,7 +81,7 @@ func Initialize(settings Settings, appHandler AppHandler) int {
 		// to cef_initialize, then it would result in creation of infinite
 		// number of processes. See Issue 1199 in CEF:
 		// https://code.google.com/p/chromiumembedded/issues/detail?id=1199
-		Logger.Println("ERROR: missing a call to ExecuteProcess")
+		log.Error("ERROR: missing a call to ExecuteProcess")
 		return 0
 	}
 
@@ -228,9 +133,8 @@ func Initialize(settings Settings, appHandler AppHandler) int {
 	// no_sandbox
 	// ----------
 	cefSettings.no_sandbox = C.int(1)
-	go_AddRef(unsafe.Pointer(appHandler.GetAppHandlerT().CStruct))
-	go_AddRef(unsafe.Pointer(_MainArgs))
-	go_AddRef(unsafe.Pointer(_SandboxInfo))
+	// go_AddRef(unsafe.Pointer(appHandler.GetAppHandlerT().CStruct))
+	// go_AddRef(unsafe.Pointer(_SandboxInfo))
 	// TODO : Figure out why second argument must be nil
 	ret := C.cef_initialize(_MainArgs, cefSettings, nil, _SandboxInfo)
 	return int(ret)
@@ -279,17 +183,17 @@ func CreateBrowser(hwnd unsafe.Pointer, clientHandler ClientHandler, browserSett
 }
 
 func RunMessageLoop() {
-	Logger.Println("RunMessageLoop")
+	log.Info("RunMessageLoop")
 	C.cef_run_message_loop()
 }
 
 func QuitMessageLoop() {
-	Logger.Println("QuitMessageLoop")
+	log.Info("QuitMessageLoop")
 	C.cef_quit_message_loop()
 }
 
 func Shutdown() {
-	Logger.Println("Shutdown")
+	log.Info("Shutdown")
 	C.cef_shutdown()
 	// OFF: cef_sandbox_info_destroy(_SandboxInfo)
 }

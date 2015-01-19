@@ -11,8 +11,10 @@ package chrome
 extern void initialize_app_handler(cef_app_t* app);
 */
 import "C"
-
-import "unsafe"
+import (
+	log "github.com/cihub/seelog"
+	"unsafe"
+)
 
 var (
 	knownAppHandlers = make(map[unsafe.Pointer]AppHandler)
@@ -20,7 +22,6 @@ var (
 
 // create the underlying C structure for an App Handler.
 func NewAppHandlerT(handler AppHandler) AppHandlerT {
-
 	var a AppHandlerT
 	a.CStruct = (*C.cef_app_t)(
 		C.calloc(1, C.sizeof_cef_app_t))
@@ -33,7 +34,7 @@ func NewAppHandlerT(handler AppHandler) AppHandlerT {
 //export goDebugLog
 func goDebugLog(toLog *C.char) {
 	ll := C.GoString(toLog)
-	Logger2.Infof(ll)
+	log.Info(ll)
 }
 
 //export go_GetBrowserProcessHandler
@@ -48,7 +49,11 @@ func go_GetBrowserProcessHandler(self *C.cef_app_t) *C.struct__cef_browser_proce
 }
 
 type AppHandler interface {
+	OnBeforeCommandLineProcessing(processType string, commandLine CommandLineT)
+	OnRegisterCustomSchemes()
+	GetResourceBundleHandler()
 	GetBrowserProcessHandler() BrowserProcessHandler
+	GetRenderProcessHandler()
 	// called to get the underlying c struct.
 	GetAppHandlerT() AppHandlerT
 }

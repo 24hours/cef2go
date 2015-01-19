@@ -8,7 +8,7 @@
 #include "cef_base.h"
 #include "include/capi/cef_client_capi.h"
 #include "include/capi/cef_life_span_handler_capi.h"
-
+#include "_cgo_export.h"
 
 int CEF_CALLBACK cef_life_span_handler_t_on_before_popup(
         struct _cef_life_span_handler_t* self,
@@ -25,9 +25,11 @@ int CEF_CALLBACK cef_life_span_handler_t_on_before_popup(
         self,
         browser,
         frame,
-        target_url,
-        target_frame_name,
-        popupFeatures,
+        (cef_string_t*)target_url,
+        (cef_string_t*)target_frame_name,
+        (struct _cef_popup_features_t*)popupFeatures,
+        // for some reason warning for const to non-const parameter 
+        // is not suppressed by cgo. 
         windowInfo,
         client,
         settings,

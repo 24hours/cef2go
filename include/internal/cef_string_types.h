@@ -57,7 +57,6 @@ typedef unsigned short char16;  // NOLINT (runtime/int)
 #endif  // WCHAR_T_IS_UTF32
 #endif  // !OS_WIN
 
-
 // CEF string type definitions. Whomever allocates |str| is responsible for
 // providing an appropriate |dtor| implementation that will free the string in
 // the same memory space. When reusing an existing string structure make sure

@@ -7,10 +7,6 @@
 #include "cef_base.h"
 #include <string.h>
 
-// ----------------------------------------------------------------------------
-// cef_base_t
-// ----------------------------------------------------------------------------
-
 ///
 // Structure defining the reference count implementation functions. All
 // framework structures must include the cef_base_t structure first.
