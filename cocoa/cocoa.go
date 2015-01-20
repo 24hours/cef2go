@@ -59,19 +59,14 @@ void ActivateApp() {
 import "C"
 import "unsafe"
 import (
-	"log"
-	"os"
 	"path/filepath"
 )
-
-var Logger *log.Logger = log.New(os.Stdout, "[cocoa] ", log.Lshortfile)
 
 func InitializeApp() {
 	C.InitializeApp()
 }
 
 func CreateWindow(title string, width int, height int) unsafe.Pointer {
-	Logger.Println("CreateWindow")
 	csTitle := C.CString(title)
 	defer C.free(unsafe.Pointer(csTitle))
 	window := C.CreateWindow(csTitle, C.int(width), C.int(height))
@@ -87,7 +82,6 @@ type DestroyCallback func()
 var destroySignalCallbacks map[uintptr]DestroyCallback = make(map[uintptr]DestroyCallback)
 
 func ConnectDestroySignal(window unsafe.Pointer, callback DestroyCallback) {
-	Logger.Println("ConnectDestroySignal")
 	ptr := uintptr(window)
 	destroySignalCallbacks[ptr] = callback
 }

@@ -29,7 +29,7 @@ var _Argv []*C.char = make([]*C.char, len(os.Args))
 
 func FillMainArgs(mainArgs *C.struct__cef_main_args_t, appHandle unsafe.Pointer) {
 	// On Mac appHandle is nil.
-	log.Debug("FillMainArgs, argc=", len(os.Args))
+	log.Debug("FillMainArgs, ", os.Args)
 	for i, arg := range os.Args {
 		_Argv[C.int(i)] = C.CString(arg)
 	}

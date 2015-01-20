@@ -137,11 +137,12 @@ func RegisterDestructor(it unsafe.Pointer, decon func(it unsafe.Pointer)) bool {
 }
 
 func DumpRefs() {
+	log.Info("Dumping reference : ")
 	refCountLock.Lock()
 	defer refCountLock.Unlock()
 
 	for k, v := range memoryBridge {
-		log.Infof("%X : %#v", k, v)
+		log.Info("%X : %#v", k, v)
 	}
 }
 

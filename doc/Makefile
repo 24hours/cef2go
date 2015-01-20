@@ -19,10 +19,8 @@ ifeq ($(UNAME_S), Linux)
 		-I/usr/lib64/gtk-2.0/include
 	export CC=gcc $(INC)
 	export CGO_LDFLAGS=-L $(PWD)/Release -lcef
-else ifeq ($(UNAME_S), Darwin)
-	INC=-I.
+else #ifeq ($(UNAME_S), Darwin)
 	export CGO_ENABLED=1
-	export CC=clang $(INC)
 	export CGO_LDFLAGS=-F$(PWD)/Release/tmp -framework Cocoa -framework cef
 endif
 
@@ -39,7 +37,7 @@ Linux:
 
 Darwin:
 	clear
-	
+	go install github.com/24hours/chrome
 	@# Required for linking. Go doesn't allow framework name
 	@# to contain spaces, so we're making a copy of the framework
 	@# without spaces.
@@ -49,17 +47,14 @@ Darwin:
 		cp -rf Release/cef2go.app/Contents/Frameworks/Chromium\ Embedded\ Framework.framework Release/tmp/cef.framework ;\
 		mv Release/tmp/cef.framework/Chromium\ Embedded\ Framework Release/tmp/cef.framework/cef ;\
 	fi
-	go install -x cef
 	@# CEF requires specific app bundle / directory structure
 	@# on OSX, but Go doesn't allow for such thing when 
 	@# running test. So turning off test.
 	@# go test -ldflags "-r $(PWD)/Release" src/tests/cef_test.go
 	rm -f Release/cef2go.app/Contents/MacOS/cef2go
-	go build -x -ldflags "-r ." -o Release/cef2go.app/Contents/MacOS/cef2go src/main_darwin.go
+	go build -ldflags "-r ." -o Release/cef2go.app/Contents/MacOS/cef2go main_darwin.go
 	install_name_tool -change @executable_path/Chromium\ Embedded\ Framework @executable_path/../Frameworks/Chromium\ Embedded\ Framework.framework/Chromium\ Embedded\ Framework Release/cef2go.app/Contents/MacOS/cef2go
-	cp -f Release/example.html Release/cef2go.app/Contents/MacOS/example.html
-	cd Release/cef2go.app/Contents/MacOS && ./cef2go && cd ../../../../
-
+	
 clean:
 	clear
 	go clean -i cef

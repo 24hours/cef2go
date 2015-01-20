@@ -11,16 +11,16 @@ package cocoa
 */
 import "C"
 import "unsafe"
+import log "github.com/cihub/seelog"
 
 //export _GoDestroySignal
 func _GoDestroySignal(window unsafe.Pointer) {
-	Logger.Println("_GoDestroySignal")
 	ptr := uintptr(window)
 	if callback, ok := destroySignalCallbacks[ptr]; ok {
 		delete(destroySignalCallbacks, ptr)
 		callback()
 	} else {
-		Logger.Println("WARNING: _GoDestroySignal failed, callback not found")
+		log.Warn(" _GoDestroySignal failed, callback not found")
 	}
 
 }

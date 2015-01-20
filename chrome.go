@@ -1,7 +1,7 @@
 // Copyright (c) 2014 The cef2go authors. All rights reserved.
 // License: BSD 3-clause.
 // Website: https://github.com/CzarekTomczak/cef2go
-
+//TODO : figure out why crash on exit
 package chrome
 
 /*
@@ -24,6 +24,7 @@ CEF capi fixes
 #include <stdlib.h>
 #include <string.h>
 #include "include/capi/cef_app_capi.h"
+#include "include/capi/cef_client_capi.h"
 #include "cef_base.h"
 #include "cef_app.h"
 #include "cef_client.h"
@@ -37,12 +38,6 @@ import (
 
 var logger log.LoggerInterface
 var execute_called bool
-
-func init() {
-	logger, _ = log.LoggerFromWriterWithMinLevelAndFormat(os.Stdout, 0, "[%Level] %File:%Line: %Msg %n")
-	log.ReplaceLogger(logger)
-}
-
 var _MainArgs *C.struct__cef_main_args_t
 
 // Sandbox is disabled. Including the "cef_sandbox.lib"
@@ -55,9 +50,20 @@ var _MainArgs *C.struct__cef_main_args_t
 // void cef_sandbox_info_destroy(void* sandbox_info);
 var _SandboxInfo unsafe.Pointer
 
-func ExecuteProcess(programHandle unsafe.Pointer, appHandle AppHandler) int {
+func init() {
+	logger, _ = log.LoggerFromWriterWithMinLevelAndFormat(os.Stdout, 0, "[%Level] %File:%Line: %Msg %n")
+	log.ReplaceLogger(logger)
+}
+
+func ExecuteProcess(programHandle unsafe.Pointer, appHandler AppHandler) int {
+	var appHandlerT *C.cef_app_t
+	if appHandler == nil {
+		appHandlerT = nil
+	} else {
+		appHandlerT = appHandler.GetAppHandlerT().CStruct
+	}
+
 	_MainArgs = (*C.struct__cef_main_args_t)(C.calloc(1, C.sizeof_struct__cef_main_args_t))
-	CreateRef(unsafe.Pointer(_MainArgs), "MainArgs")
 	FillMainArgs(_MainArgs, programHandle)
 	// Sandbox info needs to be passed to both cef_execute_process()
 	// and cef_initialize().
@@ -65,7 +71,7 @@ func ExecuteProcess(programHandle unsafe.Pointer, appHandle AppHandler) int {
 	// go_AddRef(unsafe.Pointer(appHandle.GetAppHandlerT().CStruct))
 	// go_AddRef(unsafe.Pointer(_MainArgs))
 	// go_AddRef(unsafe.Pointer(_SandboxInfo))
-	var exitCode C.int = C.cef_execute_process(_MainArgs, appHandle.GetAppHandlerT().CStruct, _SandboxInfo)
+	var exitCode C.int = C.cef_execute_process(_MainArgs, appHandlerT, _SandboxInfo)
 	if exitCode >= 0 {
 		os.Exit(int(exitCode))
 	}
@@ -74,7 +80,6 @@ func ExecuteProcess(programHandle unsafe.Pointer, appHandle AppHandler) int {
 }
 
 func Initialize(settings Settings, appHandler AppHandler) int {
-	log.Info("Initialize")
 	if execute_called == false {
 		// If cef_initialize called before  cef_execute_process
 		// then it would result in creation of infinite number of
@@ -84,7 +89,13 @@ func Initialize(settings Settings, appHandler AppHandler) int {
 		panic("Missing Call to ExecuteProcess")
 	}
 
-	ret := C.cef_initialize(_MainArgs, settings.toC(), appHandler.GetAppHandlerT().CStruct, _SandboxInfo)
+	var appHandlerT *C.cef_app_t
+	if appHandler == nil {
+		appHandlerT = nil
+	} else {
+		appHandlerT = appHandler.GetAppHandlerT().CStruct
+	}
+	ret := C.cef_initialize(_MainArgs, settings.toC(), appHandlerT, _SandboxInfo)
 	return int(ret)
 }
 
@@ -102,8 +113,14 @@ func CreateBrowser(hwnd unsafe.Pointer,
 	var cefUrl *C.cef_string_t
 	cefUrl = (*C.cef_string_t)(C.calloc(1, C.sizeof_cef_string_t))
 	toCefStringCopy(url, cefUrl)
-	// Initialize cef_browser_settings_t structure.
-	cefBrowserSettings := browserSettings.toC()
+
+	var ch *C.struct__cef_client_t
+	if clientHandler == nil {
+		ch = nil
+	} else {
+		go_AddRef(unsafe.Pointer(clientHandler.GetClientHandlerT().CStruct))
+		ch = clientHandler.GetClientHandlerT().CStruct
+	}
 
 	// Do not create the browser synchronously using the
 	// cef_browser_host_create_browser_sync() function, as
@@ -115,12 +132,12 @@ func CreateBrowser(hwnd unsafe.Pointer,
 	// will first guess the CEF window handle using for example
 	// WinAPI functions and then search the global map of cef
 	// browser objects.
-	go_AddRef(unsafe.Pointer(clientHandler.GetClientHandlerT().CStruct))
+
 	result := C.cef_browser_host_create_browser(
 		windowInfo,
-		clientHandler.GetClientHandlerT().CStruct,
+		ch,
 		cefUrl,
-		cefBrowserSettings,
+		browserSettings.toC(),
 		nil,
 	)
 
@@ -139,6 +156,7 @@ func QuitMessageLoop() {
 
 func Shutdown() {
 	log.Info("Shutdown")
+	C.free(unsafe.Pointer(_MainArgs))
 	C.cef_shutdown()
 	// OFF: cef_sandbox_info_destroy(_SandboxInfo)
 }

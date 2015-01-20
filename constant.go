@@ -33,7 +33,7 @@ type Settings struct {
 	UncaughtExceptionStackSize  int
 	ContextSafetyImplementation int
 	IgnoreCertificateErrors     int
-	BackgroundColor             uint32
+	BackgroundColor             int
 	constructed_by_NewSetting   bool
 }
 
@@ -112,10 +112,10 @@ func NewSettings() Settings {
 		NoSandbox:                   1,
 		BrowserSubprocessPath:       "",
 		MultiThreadedMessageLoop:    0,
-		WindowlessRenderingEnabled:  0,
+		WindowlessRenderingEnabled:  1,
 		CommandLineArgsDisabled:     0,
 		CachePath:                   "",
-		PersistSessionCookies:       0,
+		PersistSessionCookies:       1,
 		UserAgent:                   "cef2go",
 		ProductVersion:              "0.1",
 		Locale:                      "en-US",
@@ -126,10 +126,10 @@ func NewSettings() Settings {
 		LocalesDirPath:              cwd + "/locales",
 		PackLoadingDisabled:         0,
 		RemoteDebuggingPort:         0,
-		UncaughtExceptionStackSize:  10,
+		UncaughtExceptionStackSize:  0,
 		ContextSafetyImplementation: 0,
 		IgnoreCertificateErrors:     0,
-		BackgroundColor:             16777215,
+		BackgroundColor:             -1,
 		constructed_by_NewSetting:   true,
 	}
 }
