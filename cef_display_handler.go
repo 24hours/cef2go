@@ -140,3 +140,32 @@ func NewDisplayHandlerT(display DisplayHandler) DisplayHandlerT {
 	displayHandlerMap[unsafe.Pointer(handler.CStruct)] = display
 	return handler
 }
+
+//base display handler
+type BaseDisplayHandler struct {
+	handler DisplayHandlerT
+}
+
+func (d *BaseDisplayHandler) OnAddressChange(browser CefBrowserT, frame CefFrameT, url string) {
+	defer browser.Release()
+	defer frame.Release()
+}
+func (d *BaseDisplayHandler) OnTitleChange(browser CefBrowserT, title string) {
+	defer browser.Release()
+}
+func (d *BaseDisplayHandler) OnToolTip(browser CefBrowserT, text string) bool {
+	defer browser.Release()
+	return false
+}
+func (d *BaseDisplayHandler) OnStatusMessage(browser CefBrowserT, value string) {
+	defer browser.Release()
+}
+func (d *BaseDisplayHandler) OnConsoleMessage(browser CefBrowserT, message, source string, line int) bool {
+	defer browser.Release()
+
+	return true
+}
+
+func (d *BaseDisplayHandler) GetDisplayHandlerT() DisplayHandlerT {
+	return d.handler
+}

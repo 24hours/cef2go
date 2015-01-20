@@ -122,3 +122,31 @@ func NewLifeSpanHandlerT(life LifeSpanHandler) LifeSpanHandlerT {
 	lifeSpanHandlerMap[unsafe.Pointer(handler.CStruct)] = life
 	return handler
 }
+
+//base LifeSpanHandler
+
+type BaseLifeSpanHandler struct {
+	lifeSpan LifeSpanHandlerT
+}
+
+func (l *BaseLifeSpanHandler) OnAfterCreated(browser CefBrowserT) {
+	defer browser.Release()
+}
+func (l *BaseLifeSpanHandler) RunModal(browser CefBrowserT) int {
+	defer browser.Release()
+
+	return 0
+}
+func (l *BaseLifeSpanHandler) DoClose(browser CefBrowserT) int {
+	defer browser.Release()
+
+	return 0
+}
+func (l *BaseLifeSpanHandler) BeforeClose(browser CefBrowserT) {
+	defer browser.Release()
+
+	//chrome.QuitMessageLoop()
+}
+func (l *BaseLifeSpanHandler) GetLifeSpanHandlerT() LifeSpanHandlerT {
+	return l.lifeSpan
+}

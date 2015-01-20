@@ -16,9 +16,7 @@ import (
 	"unsafe"
 )
 
-var (
-	knownAppHandlers = make(map[unsafe.Pointer]AppHandler)
-)
+var knownAppHandlers = make(map[unsafe.Pointer]AppHandler)
 
 // create the underlying C structure for an App Handler.
 func NewAppHandlerT(handler AppHandler) AppHandlerT {
@@ -33,8 +31,7 @@ func NewAppHandlerT(handler AppHandler) AppHandlerT {
 
 //export goDebugLog
 func goDebugLog(toLog *C.char) {
-	ll := C.GoString(toLog)
-	log.Info(ll)
+	log.Info(C.GoString(toLog))
 }
 
 //export go_GetBrowserProcessHandler
@@ -59,4 +56,24 @@ type AppHandler interface {
 }
 type AppHandlerT struct {
 	CStruct *C.cef_app_t
+}
+
+//base Handler
+type BaseAppHandler struct {
+	browserProcessHandler BrowserProcessHandler
+	handler               AppHandlerT
+}
+
+func (app *BaseAppHandler) OnBeforeCommandLineProcessing(processType string,
+	commandLine CommandLineT) {
+}
+func (app *BaseAppHandler) OnRegisterCustomSchemes()  {}
+func (app *BaseAppHandler) GetResourceBundleHandler() {}
+func (app *BaseAppHandler) GetBrowserProcessHandler() BrowserProcessHandler {
+	app.browserProcessHandler.GetBrowserProcessHandlerT().AddRef()
+	return app.browserProcessHandler
+}
+func (app *BaseAppHandler) GetRenderProcessHandler() {}
+func (app *BaseAppHandler) GetAppHandlerT() AppHandlerT {
+	return app.handler
 }

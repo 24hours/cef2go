@@ -21,10 +21,6 @@ import (
 	"unsafe"
 )
 
-func init() {
-	log.ReplaceLogger(logger)
-}
-
 // a niave memory management.
 // allows us to keep track of allocated resources, and their counts
 // furthermore, the deconstructor lets us free any go resources once
@@ -144,9 +140,19 @@ func DumpRefs() {
 	refCountLock.Lock()
 	defer refCountLock.Unlock()
 
-	// for k, v := range memoryBridge {
-	// 	Logger.Infof("%X : %#v", k, v)
-	// }
+	for k, v := range memoryBridge {
+		log.Infof("%X : %#v", k, v)
+	}
+}
+
+func clearAllRefs() {
+	refCountLock.Lock()
+	defer refCountLock.Unlock()
+
+	for k, v := range memoryBridge {
+		v.Count = 1
+		go_Release(k)
+	}
 }
 
 func getRef(it unsafe.Pointer) (error, MemoryManagedBridge) {

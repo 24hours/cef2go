@@ -33,10 +33,10 @@ import "unsafe"
 import (
 	log "github.com/cihub/seelog"
 	"os"
-	"runtime"
 )
 
 var logger log.LoggerInterface
+var execute_called bool
 
 func init() {
 	logger, _ = log.LoggerFromWriterWithMinLevelAndFormat(os.Stdout, 0, "[%Level] %File:%Line: %Msg %n")
@@ -69,94 +69,39 @@ func ExecuteProcess(programHandle unsafe.Pointer, appHandle AppHandler) int {
 	if exitCode >= 0 {
 		os.Exit(int(exitCode))
 	}
+	execute_called = true
 	return int(exitCode)
 }
 
 func Initialize(settings Settings, appHandler AppHandler) int {
 	log.Info("Initialize")
-
-	if _MainArgs == nil {
-		// _MainArgs structure is initialized and filled in ExecuteProcess.
-		// If cef_execute_process is not called, and there is a call
-		// to cef_initialize, then it would result in creation of infinite
-		// number of processes. See Issue 1199 in CEF:
+	if execute_called == false {
+		// If cef_initialize called before  cef_execute_process
+		// then it would result in creation of infinite number of
+		// processes. See Issue 1199 in CEF:
 		// https://code.google.com/p/chromiumembedded/issues/detail?id=1199
-		log.Error("ERROR: missing a call to ExecuteProcess")
-		return 0
+		log.Critical("missing call to ExecuteProcess")
+		panic("Missing Call to ExecuteProcess")
 	}
 
-	// Initialize cef_settings_t structure.
-	var cefSettings *C.struct__cef_settings_t
-	cefSettings = (*C.struct__cef_settings_t)(
-		C.calloc(1, C.sizeof_struct__cef_settings_t))
-	cefSettings.size = C.sizeof_struct__cef_settings_t
-
-	var cachePath *C.char = C.CString(settings.CachePath)
-	defer C.free(unsafe.Pointer(cachePath))
-	C.cef_string_from_utf8(cachePath, C.strlen(cachePath),
-		&cefSettings.cache_path)
-
-	// log_severity
-	// ------------
-	cefSettings.log_severity =
-		(C.cef_log_severity_t)(C.int(settings.LogSeverity))
-
-	var logFile *C.char = C.CString(settings.LogFile)
-	defer C.free(unsafe.Pointer(logFile))
-	C.cef_string_from_utf8(logFile, C.strlen(logFile),
-		&cefSettings.log_file)
-
-	// resources_dir_path
-	// ------------------
-	if settings.ResourcesDirPath == "" && runtime.GOOS != "darwin" {
-		// Setting this path is required for the tests to run fine.
-		cwd, _ := os.Getwd()
-		settings.ResourcesDirPath = cwd
-	}
-	var resourcesDirPath *C.char = C.CString(settings.ResourcesDirPath)
-	defer C.free(unsafe.Pointer(resourcesDirPath))
-	C.cef_string_from_utf8(resourcesDirPath, C.strlen(resourcesDirPath),
-		&cefSettings.resources_dir_path)
-
-	// locales_dir_path
-	// ----------------
-	if settings.LocalesDirPath == "" && runtime.GOOS != "darwin" {
-		// Setting this path is required for the tests to run fine.
-		cwd, _ := os.Getwd()
-		settings.LocalesDirPath = cwd + "/locales"
-	}
-	var localesDirPath *C.char = C.CString(settings.LocalesDirPath)
-	defer C.free(unsafe.Pointer(localesDirPath))
-	C.cef_string_from_utf8(localesDirPath, C.strlen(localesDirPath),
-		&cefSettings.locales_dir_path)
-
-	// no_sandbox
-	// ----------
-	cefSettings.no_sandbox = C.int(1)
-	// go_AddRef(unsafe.Pointer(appHandler.GetAppHandlerT().CStruct))
-	// go_AddRef(unsafe.Pointer(_SandboxInfo))
-	// TODO : Figure out why second argument must be nil
-	ret := C.cef_initialize(_MainArgs, cefSettings, nil, _SandboxInfo)
+	ret := C.cef_initialize(_MainArgs, settings.toC(), appHandler.GetAppHandlerT().CStruct, _SandboxInfo)
 	return int(ret)
 }
 
-func CreateBrowser(hwnd unsafe.Pointer, clientHandler ClientHandler, browserSettings BrowserSettings,
-	url string) {
+func CreateBrowser(hwnd unsafe.Pointer,
+	clientHandler ClientHandler,
+	browserSettings BrowserSettings,
+	url string) bool {
 
 	// Initialize cef_window_info_t structure.
 	var windowInfo *C.cef_window_info_t
-	windowInfo = (*C.cef_window_info_t)(
-		C.calloc(1, C.sizeof_cef_window_info_t))
+	windowInfo = (*C.cef_window_info_t)(C.calloc(1, C.sizeof_cef_window_info_t))
 	FillWindowInfo(windowInfo, hwnd)
 
 	// url
 	var cefUrl *C.cef_string_t
-	cefUrl = (*C.cef_string_t)(
-		C.calloc(1, C.sizeof_cef_string_t))
-	var charUrl *C.char = C.CString(url)
-	defer C.free(unsafe.Pointer(charUrl))
-	C.cef_string_from_utf8(charUrl, C.strlen(charUrl), C.cefStringCastToCefString16(cefUrl))
-
+	cefUrl = (*C.cef_string_t)(C.calloc(1, C.sizeof_cef_string_t))
+	toCefStringCopy(url, cefUrl)
 	// Initialize cef_browser_settings_t structure.
 	cefBrowserSettings := browserSettings.toC()
 
@@ -178,8 +123,8 @@ func CreateBrowser(hwnd unsafe.Pointer, clientHandler ClientHandler, browserSett
 		cefBrowserSettings,
 		nil,
 	)
-	// TODO : this is bad
-	_ = result
+
+	return result == C.int(1)
 }
 
 func RunMessageLoop() {
@@ -196,73 +141,6 @@ func Shutdown() {
 	log.Info("Shutdown")
 	C.cef_shutdown()
 	// OFF: cef_sandbox_info_destroy(_SandboxInfo)
-}
-
-func (b BrowserSettings) toC() *C.struct__cef_browser_settings_t {
-	var cefBrowserSettings *C.struct__cef_browser_settings_t
-	cefBrowserSettings = (*C.struct__cef_browser_settings_t)(
-		C.calloc(1, C.sizeof_struct__cef_browser_settings_t))
-	cefBrowserSettings.size = C.sizeof_struct__cef_browser_settings_t
-
-	go_AddRef(unsafe.Pointer(cefBrowserSettings))
-
-	if b.StandardFontFamily != "" {
-		toCefStringCopy(b.StandardFontFamily, &cefBrowserSettings.standard_font_family)
-	}
-	if b.FixedFontFamily != "" {
-		toCefStringCopy(b.FixedFontFamily, &cefBrowserSettings.fixed_font_family)
-	}
-	if b.SerifFontFamily != "" {
-		toCefStringCopy(b.SerifFontFamily, &cefBrowserSettings.serif_font_family)
-	}
-	if b.SansSerifFontFamily != "" {
-		toCefStringCopy(b.SansSerifFontFamily, &cefBrowserSettings.sans_serif_font_family)
-	}
-	if b.CursiveFontFamily != "" {
-		toCefStringCopy(b.CursiveFontFamily, &cefBrowserSettings.cursive_font_family)
-	}
-	if b.FantasyFontFamily != "" {
-		toCefStringCopy(b.FantasyFontFamily, &cefBrowserSettings.fantasy_font_family)
-	}
-	cefBrowserSettings.default_font_size = C.int(b.DefaultFontSize)
-	cefBrowserSettings.default_fixed_font_size = C.int(b.DefaultFixedFontSize)
-	cefBrowserSettings.minimum_font_size = C.int(b.MinimumFontSize)
-	cefBrowserSettings.minimum_logical_font_size = C.int(b.MinimumLogicalFontSize)
-	if b.DefaultEncoding != "" {
-		toCefStringCopy(b.DefaultEncoding, &cefBrowserSettings.default_encoding)
-	}
-	cefBrowserSettings.remote_fonts = C.cef_state_t(b.RemoteFonts)
-	cefBrowserSettings.javascript = C.cef_state_t(b.Javascript)
-	cefBrowserSettings.javascript_open_windows = C.cef_state_t(b.JavascriptOpenWindows)
-	cefBrowserSettings.javascript_close_windows = C.cef_state_t(b.JavascriptCloseWindows)
-	cefBrowserSettings.javascript_access_clipboard = C.cef_state_t(b.JavascriptAccessClipboard)
-	cefBrowserSettings.javascript_dom_paste = C.cef_state_t(b.JavascriptDomPaste)
-	cefBrowserSettings.caret_browsing = C.cef_state_t(b.CaretBrowsing)
-	cefBrowserSettings.java = C.cef_state_t(b.Java)
-	cefBrowserSettings.plugins = C.cef_state_t(b.Plugins)
-	cefBrowserSettings.universal_access_from_file_urls = C.cef_state_t(b.UniversalAccessFromFileUrls)
-	cefBrowserSettings.file_access_from_file_urls = C.cef_state_t(b.FileAccessFromFileUrls)
-	cefBrowserSettings.web_security = C.cef_state_t(b.WebSecurity)
-	cefBrowserSettings.image_loading = C.cef_state_t(b.ImageLoading)
-	cefBrowserSettings.image_shrink_standalone_to_fit = C.cef_state_t(b.ImageShrinkStandaloneToFit)
-	cefBrowserSettings.text_area_resize = C.cef_state_t(b.TextAreaResize)
-	cefBrowserSettings.tab_to_links = C.cef_state_t(b.TabToLinks)
-	cefBrowserSettings.local_storage = C.cef_state_t(b.LocalStorage)
-	cefBrowserSettings.databases = C.cef_state_t(b.Databases)
-	cefBrowserSettings.application_cache = C.cef_state_t(b.ApplicationCache)
-	cefBrowserSettings.webgl = C.cef_state_t(b.Webgl)
-	cefBrowserSettings.background_color = C.cef_color_t(b.BackgroundColor)
-	return cefBrowserSettings
-}
-
-func toCefStringCopy(s string, out *C.cef_string_t) {
-	var asC *C.char = C.CString(s)
-	defer C.free(unsafe.Pointer(asC))
-	C.cef_string_from_utf8(
-		asC,
-		C.strlen(asC),
-		C.cefStringCastToCefString16(out),
-	)
 }
 
 func extractCefMultiMap(cefMapPointer C.cef_string_multimap_t) map[string][]string {

@@ -12,13 +12,10 @@ extern void initialize_request_handler(struct _cef_request_handler_t * requestHa
 extern void cef_allow_certificate_error_callback_t_cont(struct _cef_allow_certificate_error_callback_t* self, int allow);
 */
 import "C"
-import (
-	"unsafe"
-)
+import "unsafe"
+import log "github.com/cihub/seelog"
 
-var (
-	requestHandlerMap = make(map[unsafe.Pointer]RequestHandler)
-)
+var requestHandlerMap = make(map[unsafe.Pointer]RequestHandler)
 
 // Wraps the callbacks done to _cef_request_handler_t (partial implementation of callbacks)
 type RequestHandler interface {
@@ -215,8 +212,38 @@ func NewRequestHandlerT(request RequestHandler) RequestHandlerT {
 	var handler RequestHandlerT
 	handler.CStruct = (*C.struct__cef_request_handler_t)(
 		C.calloc(1, C.sizeof_struct__cef_request_handler_t))
+
+	log.Info("Initialize Request Handler")
 	C.initialize_request_handler(handler.CStruct)
+
 	go_AddRef(unsafe.Pointer(handler.CStruct))
 	requestHandlerMap[unsafe.Pointer(handler.CStruct)] = request
 	return handler
+}
+
+// base request handler
+type BaseRequestHandler struct {
+	handler RequestHandlerT
+}
+
+func (reqH *BaseRequestHandler) OnBeforeBrowse(browser CefBrowserT, frame CefFrameT, request CefRequestT, isRedirect int) int {
+	defer browser.Release()
+	defer frame.Release()
+	defer request.Release()
+
+	return 0
+}
+func (reqH *BaseRequestHandler) OnBeforeResourceLoad(browser CefBrowserT, frame CefFrameT, request CefRequestT) int {
+	defer browser.Release()
+	defer frame.Release()
+	defer request.Release()
+	return 0
+}
+func (reqH *BaseRequestHandler) OnCertificateError(errorCode CefErrorCode, requestUrl string, errorCallback CefCertErrorCallbackT) int {
+	errorCallback.Release()
+	return 0
+}
+
+func (reqH *BaseRequestHandler) GetRequestHandlerT() RequestHandlerT {
+	return reqH.handler
 }

@@ -13,7 +13,6 @@ extern void initialize_client_handler(struct _cef_client_t* client);
 import "C"
 
 import (
-	//    "fmt"
 	"unsafe"
 )
 
@@ -33,6 +32,7 @@ func (c ClientHandlerT) Release() {
 }
 
 type ClientHandler interface {
+	RegisterHandler(...interface{})
 	GetContextMenuHandler() ContextMenuHandlerT
 	GetDialogHandler() DialogHandlerT
 	GetDisplayHandler() DisplayHandler
@@ -210,10 +210,65 @@ func go_GetRequestHandler(self *C.struct__cef_client_t) *C.struct__cef_request_h
 
 func NewClientHandlerT(handler ClientHandler) ClientHandlerT {
 	var c ClientHandlerT
-	c.CStruct = (*C.struct__cef_client_t)(
-		C.calloc(1, C.sizeof_struct__cef_client_t))
+	c.CStruct = (*C.struct__cef_client_t)(C.calloc(1, C.sizeof_struct__cef_client_t))
 	C.initialize_client_handler(c.CStruct)
 	go_AddRef(unsafe.Pointer(c.CStruct))
 	clientHandlerMap[unsafe.Pointer(c.CStruct)] = handler
 	return c
+}
+
+//Client Handler
+type BaseClientHandler struct {
+	clientHandlerT ClientHandlerT
+	lifeSpan       LifeSpanHandler
+	requestHandler RequestHandler
+	displayHandler DisplayHandler
+}
+
+func (ch *BaseClientHandler) RegisterHandler(handler ...interface{}) {
+
+}
+
+func (ch *BaseClientHandler) GetContextMenuHandler() ContextMenuHandlerT {
+	return ContextMenuHandlerT{nil}
+}
+func (ch *BaseClientHandler) GetDialogHandler() DialogHandlerT {
+	return DialogHandlerT{nil}
+}
+func (ch *BaseClientHandler) GetDisplayHandler() DisplayHandler {
+	return ch.displayHandler
+}
+func (ch *BaseClientHandler) GetDownloadHandler() DownloadHandler {
+	return nil
+}
+func (ch *BaseClientHandler) GetDragHandler() DragHandlerT {
+	return DragHandlerT{nil}
+}
+func (ch *BaseClientHandler) GetFocusHandler() FocusHandlerT {
+	return FocusHandlerT{nil}
+}
+func (ch *BaseClientHandler) GetGeoLocationHandler() GeolocationHandlerT {
+	return GeolocationHandlerT{nil}
+}
+func (ch *BaseClientHandler) GetJsDialogHandler() JsdialogHandlerT {
+	return JsdialogHandlerT{nil}
+}
+func (ch *BaseClientHandler) GetKeyboardHandler() KeyboardHandlerT {
+	return KeyboardHandlerT{nil}
+}
+func (ch *BaseClientHandler) GetLifeSpanHandler() LifeSpanHandler {
+	return ch.lifeSpan
+}
+func (ch *BaseClientHandler) GetLoadHandler() LoadHandlerT {
+	return LoadHandlerT{nil}
+}
+func (ch *BaseClientHandler) GetRenderHandler() RenderHandlerT {
+	return RenderHandlerT{nil}
+}
+func (ch *BaseClientHandler) GetRequestHandler() RequestHandler {
+	return ch.requestHandler
+}
+
+func (ch *BaseClientHandler) GetClientHandlerT() ClientHandlerT {
+	return ch.clientHandlerT
 }
