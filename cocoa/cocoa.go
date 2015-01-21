@@ -60,10 +60,9 @@ import "C"
 import "unsafe"
 import (
 	"github.com/24hours/chrome"
-	"path/filepath"
 )
 
-func InitializeApp() {
+func init() {
 	C.InitializeApp()
 }
 
@@ -86,13 +85,4 @@ var destroySignalCallbacks map[uintptr]DestroyCallback = make(map[uintptr]Destro
 func ConnectDestroySignal(window chrome.WindowInfo, callback DestroyCallback) {
 	ptr := uintptr(window.Ptr)
 	destroySignalCallbacks[ptr] = callback
-}
-
-func GetExecutableDir() string {
-	var path []C.char = make([]C.char, 1024)
-	var size C.uint32_t = 1024
-	if C._NSGetExecutablePath(&path[0], &size) == 0 {
-		return filepath.Dir(C.GoString(&path[0]))
-	}
-	return "."
 }
