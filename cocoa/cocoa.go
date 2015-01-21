@@ -59,6 +59,7 @@ void ActivateApp() {
 import "C"
 import "unsafe"
 import (
+	"github.com/24hours/chrome"
 	"path/filepath"
 )
 
@@ -66,10 +67,11 @@ func InitializeApp() {
 	C.InitializeApp()
 }
 
-func CreateWindow(title string, width int, height int) unsafe.Pointer {
+func CreateWindow(title string, width int, height int) chrome.WindowInfo {
 	csTitle := C.CString(title)
 	defer C.free(unsafe.Pointer(csTitle))
-	window := C.CreateWindow(csTitle, C.int(width), C.int(height))
+	window := chrome.WindowInfo{}
+	window.Ptr = C.CreateWindow(csTitle, C.int(width), C.int(height))
 	return window
 }
 
@@ -81,8 +83,8 @@ type DestroyCallback func()
 
 var destroySignalCallbacks map[uintptr]DestroyCallback = make(map[uintptr]DestroyCallback)
 
-func ConnectDestroySignal(window unsafe.Pointer, callback DestroyCallback) {
-	ptr := uintptr(window)
+func ConnectDestroySignal(window chrome.WindowInfo, callback DestroyCallback) {
+	ptr := uintptr(window.Ptr)
 	destroySignalCallbacks[ptr] = callback
 }
 
