@@ -6,6 +6,7 @@
 package chrome
 
 /*
+#cgo CFLAGS: -I./
 #include <stdlib.h>
 #include "include/capi/cef_app_capi.h"
 extern void initialize_app_handler(cef_app_t* app);

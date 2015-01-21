@@ -50,6 +50,11 @@ var _MainArgs *C.struct__cef_main_args_t
 // void cef_sandbox_info_destroy(void* sandbox_info);
 var _SandboxInfo unsafe.Pointer
 
+type WindowInfo struct {
+	Ptr unsafe.Pointer
+	Hdl uint64
+}
+
 func init() {
 	logger, _ = log.LoggerFromWriterWithMinLevelAndFormat(os.Stdout, 0, "[%Level] %File:%Line: %Msg %n")
 	log.ReplaceLogger(logger)
@@ -99,7 +104,7 @@ func Initialize(settings Settings, appHandler AppHandler) int {
 	return int(ret)
 }
 
-func CreateBrowser(hwnd unsafe.Pointer,
+func CreateBrowser(hwnd WindowInfo,
 	clientHandler ClientHandler,
 	browserSettings BrowserSettings,
 	url string) bool {

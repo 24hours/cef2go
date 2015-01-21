@@ -92,12 +92,12 @@ func (b CefBrowserHostT) SetFocus(enable int) {
 	C.cef_browser_host_t_set_focus(b.CStruct, C.int(enable))
 }
 
-func (b CefBrowserHostT) GetWindowHandle() unsafe.Pointer {
-	return unsafe.Pointer(C.cef_browser_host_t_get_window_handle(b.CStruct))
+func (b CefBrowserHostT) GetWindowHandle() C.cef_window_handle_t {
+	return C.cef_browser_host_t_get_window_handle(b.CStruct)
 }
 
-func (b CefBrowserHostT) GetOpenerWindowHandle() unsafe.Pointer {
-	return unsafe.Pointer(C.cef_browser_host_t_get_opener_window_handle(b.CStruct))
+func (b CefBrowserHostT) GetOpenerWindowHandle() C.cef_window_handle_t {
+	return C.cef_browser_host_t_get_opener_window_handle(b.CStruct)
 }
 
 func (b CefBrowserHostT) GetClient() CefClientT {

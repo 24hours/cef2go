@@ -37,7 +37,7 @@ func FillMainArgs(mainArgs *C.struct__cef_main_args_t, appHandle unsafe.Pointer)
 	mainArgs.argv = &_Argv[0]
 }
 
-func FillWindowInfo(windowInfo *C.cef_window_info_t, hwnd unsafe.Pointer) {
+func FillWindowInfo(windowInfo *C.cef_window_info_t, hwnd WindowInfo) {
 	log.Debug("FillWindowInfo")
 
 	// Setting title isn't required for the CEF inner window.
@@ -47,7 +47,7 @@ func FillWindowInfo(windowInfo *C.cef_window_info_t, hwnd unsafe.Pointer) {
 	// C.cef_string_from_utf8(windowName, C.strlen(windowName),
 	//        &windowInfo.window_name)
 
-	var bounds C.NSRect = C.GetWindowBounds(hwnd)
+	var bounds C.NSRect = C.GetWindowBounds(hwnd.Ptr)
 
 	windowInfo.x = C.int(bounds.origin.x)
 	windowInfo.y = C.int(bounds.origin.y)
@@ -55,5 +55,5 @@ func FillWindowInfo(windowInfo *C.cef_window_info_t, hwnd unsafe.Pointer) {
 	windowInfo.height = C.int(bounds.size.height)
 
 	// parent
-	windowInfo.parent_view = hwnd
+	windowInfo.parent_view = hwnd.Ptr
 }

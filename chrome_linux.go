@@ -5,15 +5,30 @@
 package chrome
 
 /*
-#cgo CFLAGS: -I./../../
+#cgo CFLAGS: -I./
+#cgo pkg-config: --libs --cflags gtk+-2.0
 #include <stdlib.h>
-#include "string.h"
+#include <string.h>
+#include <gtk/gtk.h>
 #include "include/capi/cef_app_capi.h"
+
+struct gtkInfo{
+	int width;
+	int height;
+};
+
+struct gtkInfo getBound(GtkWidget *g){
+	struct gtkInfo ret;
+	gtk_window_get_default_size(GTK_WINDOW(g), (gint*)(&ret.width), (gint*)(&ret.height));
+
+	return ret;
+}
 */
 import "C"
 import "unsafe"
 
 import (
+	log "github.com/cihub/seelog"
 	"os"
 )
 
@@ -22,7 +37,7 @@ var _Argv []*C.char = make([]*C.char, len(os.Args))
 func FillMainArgs(mainArgs *C.struct__cef_main_args_t,
 	appHandle unsafe.Pointer) {
 	// On Linux appHandle is nil.
-	Logger.Println("FillMainArgs, argc=", len(os.Args))
+	log.Debug("FillMainArgs, argv=", os.Args)
 	for i, arg := range os.Args {
 		_Argv[C.int(i)] = C.CString(arg)
 	}
@@ -30,7 +45,13 @@ func FillMainArgs(mainArgs *C.struct__cef_main_args_t,
 	mainArgs.argv = &_Argv[0]
 }
 
-func FillWindowInfo(windowInfo *C.cef_window_info_t, hwnd unsafe.Pointer) {
-	Logger.Println("FillWindowInfo")
-	windowInfo.parent_widget = (*C.GtkWidget)(hwnd)
+func FillWindowInfo(windowInfo *C.cef_window_info_t, hwnd WindowInfo) {
+	var info C.struct_gtkInfo = C.getBound((*C.GtkWidget)(hwnd.Ptr))
+	windowInfo.parent_window = C.ulong(hwnd.Hdl)
+
+	windowInfo.x = 0
+	windowInfo.y = 0
+	windowInfo.width = C.uint(info.width)
+	windowInfo.height = C.uint(info.height)
+
 }
