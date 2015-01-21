@@ -108,8 +108,8 @@ func NewSettings() Settings {
 	// TODO : enable sandbox this when is is implemented
 
 	return Settings{
-		SingleProcess:               1,
-		NoSandbox:                   1,
+		SingleProcess:               0,
+		NoSandbox:                   0,
 		BrowserSubprocessPath:       "",
 		MultiThreadedMessageLoop:    0,
 		WindowlessRenderingEnabled:  1,
