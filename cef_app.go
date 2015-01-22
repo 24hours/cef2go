@@ -22,8 +22,7 @@ var knownAppHandlers = make(map[unsafe.Pointer]AppHandler)
 // create the underlying C structure for an App Handler.
 func NewAppHandlerT(handler AppHandler) AppHandlerT {
 	var a AppHandlerT
-	a.CStruct = (*C.cef_app_t)(
-		C.calloc(1, C.sizeof_cef_app_t))
+	a.CStruct = (*C.cef_app_t)(C.calloc(1, C.sizeof_cef_app_t))
 	C.initialize_app_handler(a.CStruct)
 
 	knownAppHandlers[unsafe.Pointer(a.CStruct)] = handler
@@ -65,6 +64,7 @@ type BaseAppHandler struct {
 	handler               AppHandlerT
 }
 
+func (app *BaseAppHandler) haveBase() bool { return true }
 func (app *BaseAppHandler) OnBeforeCommandLineProcessing(processType string,
 	commandLine CommandLineT) {
 }

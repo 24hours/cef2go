@@ -107,7 +107,7 @@ func go_CreateRef(it unsafe.Pointer, name *C.char) {
 	if name != nil {
 		goname = C.GoString(name)
 	}
-	log.Info("Create Reference for", goname)
+	log.Info("Create Reference for ", goname)
 	CreateRef(it, goname)
 }
 

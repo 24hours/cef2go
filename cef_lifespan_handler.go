@@ -12,14 +12,9 @@ package chrome
 extern void initialize_life_span_handler(struct _cef_life_span_handler_t* lifeHandler);
 */
 import "C"
+import "unsafe"
 
-import (
-	"unsafe"
-)
-
-var (
-	lifeSpanHandlerMap = make(map[unsafe.Pointer]LifeSpanHandler)
-)
+var lifeSpanHandlerMap = make(map[unsafe.Pointer]LifeSpanHandler)
 
 type LifeSpanHandler interface {
 	OnAfterCreated(browser CefBrowserT)
@@ -131,6 +126,7 @@ type BaseLifeSpanHandler struct {
 
 func (l *BaseLifeSpanHandler) OnAfterCreated(browser CefBrowserT) {
 	defer browser.Release()
+
 }
 func (l *BaseLifeSpanHandler) RunModal(browser CefBrowserT) int {
 	defer browser.Release()
