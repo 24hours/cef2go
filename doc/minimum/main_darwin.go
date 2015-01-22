@@ -18,6 +18,11 @@ func main() {
 	settings.LocalesDirPath = ""
 	settings.ResourcesDirPath = ""
 	chrome.Initialize(settings, nil)
+	// if we simply place this at the end of code
+	// CEF will simply crash on shutdown
+	// complaining it's not on the same thread with
+	// chrome.Initialize()
+	defer chrome.Shutdown()
 
 	// Create Window using Cocoa API.
 	window := cocoa.CreateWindow("chrome example", 1024, 768)
@@ -27,7 +32,6 @@ func main() {
 	chrome.CreateBrowser(window, nil, chrome.BrowserSettings{}, "http://www.google.com")
 	// CEF loop and shutdown.
 	chrome.RunMessageLoop()
-	chrome.Shutdown()
 	os.Exit(0)
 }
 
