@@ -28,7 +28,6 @@ void InitializeApp() {
 @synthesize view = view_;
 - (void)windowWillClose:(NSNotification *)notification {
     [NSAutoreleasePool new];
-    printf("NSWindowDelegate::windowWillClose\n");
     _GoDestroySignal((__bridge void*)view_);
 }
 @end
