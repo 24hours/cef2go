@@ -1,7 +1,11 @@
 // Copyright (c) 2014 The cef2go authors. All rights reserved.
 // License: BSD 3-clause.
 // Website: https://github.com/CzarekTomczak/cef2go
+
 //TODO : figure out why crash on shutdown()
+// 	     Shutdown() already calld in UI thread,
+// 		 but it complain regardless, maybe a bug in CEF
+//		 leave it untill next release come out
 package chrome
 
 /*
