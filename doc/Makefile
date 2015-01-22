@@ -29,12 +29,9 @@ detect_os:
 
 Linux:
 	clear
-	go install gtk
-	go install cef
-	go test -ldflags "-r $(PWD)/Release" src/tests/cef_test.go
-	go build -ldflags "-r ." -o Release/cef2go src/main_linux.go
-	cd Release && ./cef2go && cd ../
-
+	go install github.com/24hours/chrome
+	go build -ldflags "-r ." -o Release/cef2go main_linux.go
+	
 Darwin:
 	clear
 	go install github.com/24hours/chrome
