@@ -3,16 +3,9 @@ Chrome - Go binding to CEF
 Table of contents:
  * [Introduction](#introduction)
  * [Compatibility](#compatibility)
- * [Binary examples](#binary-examples)
- * [Help](#help)
- * [Support Development](#support-development)
- * [Forks worth a look](#forks-worth-a-look)
- * [Communication between Go and Javascript](#communication-between-go-and-javascript)
  * [Getting started on Windows](#getting-started-on-windows)
  * [Getting started on Linux](#getting-started-on-linux)
  * [Getting started on Mac OS X](#getting-started-on-mac-os-x)
- * [Built a cool app?](#built-a-cool-app)
- * [Familiar with Python or PHP?](#familiar-with-python-or-php)
 
 
 Introduction
