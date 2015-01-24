@@ -40,7 +40,8 @@ type ClientHandler interface {
 	GetLifeSpanHandler() LifeSpanHandlerT
 	GetLoadHandler() LoadHandlerT
 	GetRenderHandler() RenderHandlerT
-	GetRequestHandler() RequestHandler
+	SetRequestHandler(RequestHandlerT)
+	GetRequestHandler() RequestHandlerT
 	SetClientHandlerT(ClientHandlerT)
 	GetClientHandlerT() ClientHandlerT
 }
@@ -196,9 +197,10 @@ func go_GetRenderHandler(self *C.struct__cef_client_t) *C.struct__cef_render_han
 func go_GetRequestHandler(self *C.struct__cef_client_t) *C.struct__cef_request_handler_t {
 	if handler, ok := clientHandlerMap[unsafe.Pointer(self)]; ok {
 		res := handler.GetRequestHandler()
-		if res != nil {
-			res.GetRequestHandlerT().AddRef()
-			return res.GetRequestHandlerT().CStruct
+		empty := RequestHandlerT{nil}
+		if res != empty {
+			res.AddRef()
+			return res.CStruct
 		}
 	}
 	return nil

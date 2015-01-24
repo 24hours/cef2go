@@ -52,17 +52,24 @@ func (l *myClientHandler) OnAfterCreated(browser chrome.CefBrowserT) {
 	fmt.Println("lifespan::OnAfterCreated")
 }
 func (l *myClientHandler) RunModal(browser chrome.CefBrowserT) int {
-	defer browser.Release()
 	fmt.Println("lifespan::RunModal")
 	return 0
 }
 func (l *myClientHandler) DoClose(browser chrome.CefBrowserT) int {
-	defer browser.Release()
 	fmt.Println("lifespan::DoClose")
 	return 0
 }
 func (l *myClientHandler) BeforeClose(browser chrome.CefBrowserT) {
-	defer browser.Release()
 	fmt.Println("lifespan::BeforeClose")
-	chrome.QuitMessageLoop()
+}
+
+func (ch *myClientHandler) OnBeforeBrowse(browser chrome.CefBrowserT, frame chrome.CefFrameT, request chrome.CefRequestT, isRedirect int) int {
+	fmt.Println("Before browse: ", request.GetUrl())
+	return 0
+}
+func (l *myClientHandler) OnBeforeResourceLoad(browser chrome.CefBrowserT, frame chrome.CefFrameT, request chrome.CefRequestT) int {
+	return 0
+}
+func (l *myClientHandler) OnCertificateError(errorCode chrome.CefErrorCode, requestUrl string, errorCallback chrome.CefCertErrorCallbackT) int {
+	return 0
 }

@@ -25,7 +25,7 @@ type LifeSpanHandler interface {
 	DoClose(browser CefBrowserT) int
 	BeforeClose(browser CefBrowserT)
 
-	GetLifeSpanHandlerT() LifeSpanHandlerT
+	GetLifeSpanHandler() LifeSpanHandlerT
 }
 
 type LifeSpanHandlerT struct {
@@ -66,11 +66,11 @@ func go_OnAfterCreated(
 	self *C.struct__cef_life_span_handler_t,
 	browser *C.struct__cef_browser_t) {
 	b := CefBrowserT{browser}
+	defer b.Release()
 	if handler, ok := lifeSpanHandlerMap[unsafe.Pointer(self)]; ok {
 		handler.OnAfterCreated(b)
 		return
 	}
-	b.Release()
 }
 
 //export go_RunModal
@@ -78,10 +78,10 @@ func go_RunModal(
 	self *C.struct__cef_life_span_handler_t,
 	browser *C.struct__cef_browser_t) int {
 	b := CefBrowserT{browser}
+	defer b.Release()
 	if handler, ok := lifeSpanHandlerMap[unsafe.Pointer(self)]; ok {
 		return handler.RunModal(b)
 	}
-	b.Release()
 	return 0
 }
 
@@ -91,10 +91,10 @@ func go_DoClose(
 	browser *C.struct__cef_browser_t) int {
 
 	b := CefBrowserT{browser}
+	defer b.Release()
 	if handler, ok := lifeSpanHandlerMap[unsafe.Pointer(self)]; ok {
 		return handler.DoClose(b)
 	}
-	b.Release()
 	return 0
 }
 
@@ -103,11 +103,11 @@ func go_BeforeClose(
 	self *C.struct__cef_life_span_handler_t,
 	browser *C.struct__cef_browser_t) {
 	b := CefBrowserT{browser}
+	defer b.Release()
 	if handler, ok := lifeSpanHandlerMap[unsafe.Pointer(self)]; ok {
 		handler.BeforeClose(b)
 		return
 	}
-	b.Release()
 }
 
 func NewLifeSpanHandlerT(life LifeSpanHandler) LifeSpanHandlerT {

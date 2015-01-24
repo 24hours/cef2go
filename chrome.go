@@ -141,6 +141,11 @@ func CreateBrowser(hwnd WindowInfo,
 			clientHandler.SetLifeSpanHandler(NewLifeSpanHandlerT(lsh))
 		}
 
+		if rqh, ok := clientHandler.(RequestHandler); ok {
+			log.Debug("Registering Request handler ")
+			clientHandler.SetRequestHandler(NewRequestHandlerT(rqh))
+		}
+
 		ch = clientHandler.GetClientHandlerT().CStruct
 		go_AddRef(unsafe.Pointer(ch))
 	}

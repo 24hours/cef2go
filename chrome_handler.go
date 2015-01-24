@@ -3,6 +3,7 @@ package chrome
 type BaseClientHandler struct {
 	clientHandlerT ClientHandlerT
 	lifeSpan       LifeSpanHandlerT
+	request        RequestHandlerT
 }
 
 func (ch *BaseClientHandler) GetContextMenuHandler() ContextMenuHandlerT {
@@ -48,8 +49,14 @@ func (ch *BaseClientHandler) GetLoadHandler() LoadHandlerT {
 func (ch *BaseClientHandler) GetRenderHandler() RenderHandlerT {
 	return RenderHandlerT{nil}
 }
-func (ch *BaseClientHandler) GetRequestHandler() RequestHandler {
-	return nil
+
+func (ch *BaseClientHandler) SetRequestHandler(rqh RequestHandlerT) {
+	ch.request = rqh
+	return
+}
+
+func (ch *BaseClientHandler) GetRequestHandler() RequestHandlerT {
+	return ch.request
 }
 
 func (ch *BaseClientHandler) GetClientHandlerT() ClientHandlerT {
