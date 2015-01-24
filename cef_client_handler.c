@@ -24,6 +24,7 @@
 
 struct _cef_context_menu_handler_t* CEF_CALLBACK get_context_menu_handler(
         struct _cef_client_t* self) {
+    goDebugLog("get_context_menu_handler");
     return go_GetContextMenuHandler(self);
 }
 
@@ -33,6 +34,7 @@ struct _cef_context_menu_handler_t* CEF_CALLBACK get_context_menu_handler(
 ///
 struct _cef_dialog_handler_t* CEF_CALLBACK get_dialog_handler(
         struct _cef_client_t* self) {
+        goDebugLog("get_dialog_handler");
     return go_GetDialogHandler(self);
 }
 
@@ -41,6 +43,7 @@ struct _cef_dialog_handler_t* CEF_CALLBACK get_dialog_handler(
 ///
 struct _cef_display_handler_t* CEF_CALLBACK get_display_handler(
         struct _cef_client_t* self) {
+            goDebugLog("get_dialog_handler");
     return go_GetDisplayHandler(self);
 }
 
@@ -50,6 +53,7 @@ struct _cef_display_handler_t* CEF_CALLBACK get_display_handler(
 ///
 struct _cef_download_handler_t* CEF_CALLBACK get_download_handler(
         struct _cef_client_t* self) {
+            goDebugLog("get_dialog_handler");
     return go_GetDownloadHandler(self);
 }
 
@@ -58,6 +62,7 @@ struct _cef_download_handler_t* CEF_CALLBACK get_download_handler(
 ///
 struct _cef_drag_handler_t* CEF_CALLBACK get_drag_handler(
         struct _cef_client_t* self) {
+            goDebugLog("get_dialog_handler");
     return go_GetDragHandler(self);
 }
 
@@ -66,6 +71,7 @@ struct _cef_drag_handler_t* CEF_CALLBACK get_drag_handler(
 ///
 struct _cef_focus_handler_t* CEF_CALLBACK get_focus_handler(
         struct _cef_client_t* self) {
+            goDebugLog("get_dialog_handler");
     return go_GetFocusHandler(self);
 }
 
@@ -75,6 +81,7 @@ struct _cef_focus_handler_t* CEF_CALLBACK get_focus_handler(
 ///
 struct _cef_geolocation_handler_t* CEF_CALLBACK get_geolocation_handler(
         struct _cef_client_t* self) {
+            goDebugLog("get_dialog_handler");
     return go_GetGeoLocationHandler(self);
 }
 
@@ -84,6 +91,7 @@ struct _cef_geolocation_handler_t* CEF_CALLBACK get_geolocation_handler(
 ///
 struct _cef_jsdialog_handler_t* CEF_CALLBACK get_jsdialog_handler(
         struct _cef_client_t* self) {
+            goDebugLog("get_jsdialog_handler");
     return go_GetJsDialogHandler(self);
 }
 
@@ -92,6 +100,7 @@ struct _cef_jsdialog_handler_t* CEF_CALLBACK get_jsdialog_handler(
 ///
 struct _cef_keyboard_handler_t* CEF_CALLBACK get_keyboard_handler(
         struct _cef_client_t* self) {
+            goDebugLog("get_keyboard_handler");
     return go_GetKeyboardHandler(self);
 }
 
@@ -100,6 +109,7 @@ struct _cef_keyboard_handler_t* CEF_CALLBACK get_keyboard_handler(
 ///
 struct _cef_life_span_handler_t* CEF_CALLBACK get_life_span_handler(
         struct _cef_client_t* self) {
+            goDebugLog("get_life_span_handler");
     return go_GetLifespanHandler(self);
 }
 
@@ -108,6 +118,7 @@ struct _cef_life_span_handler_t* CEF_CALLBACK get_life_span_handler(
 ///
 struct _cef_load_handler_t* CEF_CALLBACK get_load_handler(
         struct _cef_client_t* self) {
+            goDebugLog("get_load_handler");
     return go_GetLoadHandler(self);
 }
 
@@ -116,6 +127,7 @@ struct _cef_load_handler_t* CEF_CALLBACK get_load_handler(
 ///
 struct _cef_render_handler_t* CEF_CALLBACK get_render_handler(
         struct _cef_client_t* self) {
+            goDebugLog("get_render_handler");
     return go_GetRenderHandler(self);
 }
 
@@ -124,6 +136,7 @@ struct _cef_render_handler_t* CEF_CALLBACK get_render_handler(
 ///
 struct _cef_request_handler_t* CEF_CALLBACK get_request_handler(
         struct _cef_client_t* self) {
+            goDebugLog("get_request_handler");
     return go_GetRequestHandler(self);
 }
 

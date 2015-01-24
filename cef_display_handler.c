@@ -81,7 +81,7 @@ int CEF_CALLBACK _cef_display_handler_t_on_console_message(struct _cef_display_h
 
 
 void initialize_display_handler(struct _cef_display_handler_t * displayHandler) {
-    goDebugLog("initialize_display_handler\n");
+    goDebugLog("initialize_display_handler");
     displayHandler->base.size = sizeof(cef_display_handler_t);
     initialize_cef_base((cef_base_t*) displayHandler, "display_handler");
     // callbacks

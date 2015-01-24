@@ -49,7 +49,7 @@ func go_AddRef(it unsafe.Pointer) {
 	if m, ok := memoryBridge[it]; ok {
 		m.Count++
 		memoryBridge[it] = m
-		log.Debug("Adding new reference: ", it)
+		// log.Debug("Adding new reference: ", it)
 		return
 	}
 }
@@ -72,7 +72,7 @@ func go_Release(it unsafe.Pointer) int {
 			delete(memoryBridge, it)
 			return 1
 		} else {
-			log.Debug("Reduce reference count for: ", it)
+			//log.Debug("Reduce reference count for: ", it)
 			memoryBridge[it] = m
 		}
 		return 0

@@ -12,7 +12,10 @@ package chrome
 extern void initialize_life_span_handler(struct _cef_life_span_handler_t* lifeHandler);
 */
 import "C"
-import "unsafe"
+import (
+	log "github.com/cihub/seelog"
+	"unsafe"
+)
 
 var lifeSpanHandlerMap = make(map[unsafe.Pointer]LifeSpanHandler)
 
@@ -62,7 +65,6 @@ func go_OnBeforePopup(
 func go_OnAfterCreated(
 	self *C.struct__cef_life_span_handler_t,
 	browser *C.struct__cef_browser_t) {
-
 	b := CefBrowserT{browser}
 	if handler, ok := lifeSpanHandlerMap[unsafe.Pointer(self)]; ok {
 		handler.OnAfterCreated(b)
@@ -112,37 +114,10 @@ func NewLifeSpanHandlerT(life LifeSpanHandler) LifeSpanHandlerT {
 	var handler LifeSpanHandlerT
 	handler.CStruct = (*C.struct__cef_life_span_handler_t)(
 		C.calloc(1, C.sizeof_struct__cef_life_span_handler_t))
+	log.Info("initialize LifeSpanHandler")
+
 	C.initialize_life_span_handler(handler.CStruct)
 	go_AddRef(unsafe.Pointer(handler.CStruct))
 	lifeSpanHandlerMap[unsafe.Pointer(handler.CStruct)] = life
 	return handler
-}
-
-//base LifeSpanHandler
-
-type BaseLifeSpanHandler struct {
-	lifeSpan LifeSpanHandlerT
-}
-
-func (l *BaseLifeSpanHandler) OnAfterCreated(browser CefBrowserT) {
-	defer browser.Release()
-
-}
-func (l *BaseLifeSpanHandler) RunModal(browser CefBrowserT) int {
-	defer browser.Release()
-
-	return 0
-}
-func (l *BaseLifeSpanHandler) DoClose(browser CefBrowserT) int {
-	defer browser.Release()
-
-	return 0
-}
-func (l *BaseLifeSpanHandler) BeforeClose(browser CefBrowserT) {
-	defer browser.Release()
-
-	//chrome.QuitMessageLoop()
-}
-func (l *BaseLifeSpanHandler) GetLifeSpanHandlerT() LifeSpanHandlerT {
-	return l.lifeSpan
 }

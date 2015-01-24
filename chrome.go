@@ -70,6 +70,7 @@ func ExecuteProcess(programHandle unsafe.Pointer, appHandler AppHandler) int {
 		appHandlerT = nil
 	} else {
 		appHandlerT = appHandler.GetAppHandlerT().CStruct
+		go_AddRef(unsafe.Pointer(appHandlerT))
 	}
 
 	_MainArgs = (*C.struct__cef_main_args_t)(C.calloc(1, C.sizeof_struct__cef_main_args_t))
@@ -77,9 +78,7 @@ func ExecuteProcess(programHandle unsafe.Pointer, appHandler AppHandler) int {
 	// Sandbox info needs to be passed to both cef_execute_process()
 	// and cef_initialize().
 	// OFF: _SandboxInfo = C.cef_sandbox_info_create()
-	// go_AddRef(unsafe.Pointer(appHandle.GetAppHandlerT().CStruct))
-	// go_AddRef(unsafe.Pointer(_MainArgs))
-	// go_AddRef(unsafe.Pointer(_SandboxInfo))
+
 	var exitCode C.int = C.cef_execute_process(_MainArgs, appHandlerT, _SandboxInfo)
 	if exitCode >= 0 {
 		os.Exit(int(exitCode))
@@ -103,6 +102,7 @@ func Initialize(settings Settings, appHandler AppHandler) int {
 		appHandlerT = nil
 	} else {
 		appHandlerT = appHandler.GetAppHandlerT().CStruct
+		go_AddRef(unsafe.Pointer(appHandlerT))
 	}
 	ret := C.cef_initialize(_MainArgs, settings.toC(), appHandlerT, _SandboxInfo)
 	return int(ret)
@@ -127,8 +127,22 @@ func CreateBrowser(hwnd WindowInfo,
 	if clientHandler == nil {
 		ch = nil
 	} else {
-		go_AddRef(unsafe.Pointer(clientHandler.GetClientHandlerT().CStruct))
+		//registering and activating multiple handler
+		if _, ok := clientHandler.(ClientHandler); ok {
+			log.Debug("Registering Client hanlder")
+			clientHandler.SetClientHandlerT(NewClientHandlerT(clientHandler))
+		} else {
+			log.Critical("clientHandler must implement interface ClientHandler")
+			panic("ClientHandler not implemented")
+		}
+
+		if lsh, ok := clientHandler.(LifeSpanHandler); ok {
+			log.Debug("Registering Life Span handler ")
+			clientHandler.SetLifeSpanHandler(NewLifeSpanHandlerT(lsh))
+		}
+
 		ch = clientHandler.GetClientHandlerT().CStruct
+		go_AddRef(unsafe.Pointer(ch))
 	}
 
 	// Do not create the browser synchronously using the

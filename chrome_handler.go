@@ -1,0 +1,61 @@
+package chrome
+
+type BaseClientHandler struct {
+	clientHandlerT ClientHandlerT
+	lifeSpan       LifeSpanHandlerT
+}
+
+func (ch *BaseClientHandler) GetContextMenuHandler() ContextMenuHandlerT {
+	return ContextMenuHandlerT{nil}
+}
+func (ch *BaseClientHandler) GetDialogHandler() DialogHandlerT {
+	return DialogHandlerT{nil}
+}
+func (ch *BaseClientHandler) GetDisplayHandler() DisplayHandler {
+	return nil
+}
+func (ch *BaseClientHandler) GetDownloadHandler() DownloadHandler {
+	return nil
+}
+func (ch *BaseClientHandler) GetDragHandler() DragHandlerT {
+	return DragHandlerT{nil}
+}
+func (ch *BaseClientHandler) GetFocusHandler() FocusHandlerT {
+	return FocusHandlerT{nil}
+}
+func (ch *BaseClientHandler) GetGeoLocationHandler() GeolocationHandlerT {
+	return GeolocationHandlerT{nil}
+}
+func (ch *BaseClientHandler) GetJsDialogHandler() JsdialogHandlerT {
+	return JsdialogHandlerT{nil}
+}
+func (ch *BaseClientHandler) GetKeyboardHandler() KeyboardHandlerT {
+	return KeyboardHandlerT{nil}
+}
+
+func (ch *BaseClientHandler) SetLifeSpanHandler(lsh LifeSpanHandlerT) {
+	ch.lifeSpan = lsh
+	return
+}
+
+func (ch *BaseClientHandler) GetLifeSpanHandler() LifeSpanHandlerT {
+	return ch.lifeSpan
+}
+
+func (ch *BaseClientHandler) GetLoadHandler() LoadHandlerT {
+	return LoadHandlerT{nil}
+}
+func (ch *BaseClientHandler) GetRenderHandler() RenderHandlerT {
+	return RenderHandlerT{nil}
+}
+func (ch *BaseClientHandler) GetRequestHandler() RequestHandler {
+	return nil
+}
+
+func (ch *BaseClientHandler) GetClientHandlerT() ClientHandlerT {
+	return ch.clientHandlerT
+}
+func (ch *BaseClientHandler) SetClientHandlerT(cht ClientHandlerT) {
+	ch.clientHandlerT = cht
+	return
+}

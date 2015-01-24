@@ -23,15 +23,11 @@ var knownAppHandlers = make(map[unsafe.Pointer]AppHandler)
 func NewAppHandlerT(handler AppHandler) AppHandlerT {
 	var a AppHandlerT
 	a.CStruct = (*C.cef_app_t)(C.calloc(1, C.sizeof_cef_app_t))
+	log.Info("Initialize App Handler")
 	C.initialize_app_handler(a.CStruct)
 
 	knownAppHandlers[unsafe.Pointer(a.CStruct)] = handler
 	return a
-}
-
-//export goDebugLog
-func goDebugLog(toLog *C.char) {
-	log.Info(C.GoString(toLog))
 }
 
 //export go_GetBrowserProcessHandler
@@ -46,13 +42,14 @@ func go_GetBrowserProcessHandler(self *C.cef_app_t) *C.struct__cef_browser_proce
 }
 
 type AppHandler interface {
+	// TODO implement these thing
 	OnBeforeCommandLineProcessing(processType string, commandLine CommandLineT)
 	OnRegisterCustomSchemes()
 	GetResourceBundleHandler()
-	GetBrowserProcessHandler() BrowserProcessHandler
 	GetRenderProcessHandler()
 	// called to get the underlying c struct.
 	GetAppHandlerT() AppHandlerT
+	GetBrowserProcessHandler() BrowserProcessHandler
 }
 type AppHandlerT struct {
 	CStruct *C.cef_app_t
@@ -60,8 +57,8 @@ type AppHandlerT struct {
 
 //base Handler
 type BaseAppHandler struct {
-	browserProcessHandler BrowserProcessHandler
 	handler               AppHandlerT
+	browserProcessHandler BrowserProcessHandler
 }
 
 func (app *BaseAppHandler) haveBase() bool { return true }
