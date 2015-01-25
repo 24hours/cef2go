@@ -27,7 +27,7 @@ func main() {
 	chrome.CreateBrowser(window, nil, chrome.BrowserSettings{}, "http://www.google.com")
 	// CEF loop and shutdown.
 	chrome.RunMessageLoop()
-	chrome.Shutdown()
+	//chrome.Shutdown()
 	os.Exit(0)
 }
 
