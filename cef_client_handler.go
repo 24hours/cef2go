@@ -29,7 +29,8 @@ func (c ClientHandlerT) Release() {
 type ClientHandler interface {
 	GetContextMenuHandler() ContextMenuHandlerT
 	GetDialogHandler() DialogHandlerT
-	GetDisplayHandler() DisplayHandler
+	SetDisplayHandler(DisplayHandlerT)
+	GetDisplayHandler() DisplayHandlerT
 	GetDownloadHandler() DownloadHandler
 	GetDragHandler() DragHandlerT
 	GetFocusHandler() FocusHandlerT
@@ -97,9 +98,10 @@ func go_GetDialogHandler(self *C.struct__cef_client_t) *C.struct__cef_dialog_han
 func go_GetDisplayHandler(self *C.struct__cef_client_t) *C.struct__cef_display_handler_t {
 	if handler, ok := clientHandlerMap[unsafe.Pointer(self)]; ok {
 		res := handler.GetDisplayHandler()
-		if res != nil {
-			res.GetDisplayHandlerT().AddRef()
-			return res.GetDisplayHandlerT().CStruct
+		empty := DisplayHandlerT{nil}
+		if res != empty {
+			res.AddRef()
+			return res.CStruct
 		}
 	}
 	return nil

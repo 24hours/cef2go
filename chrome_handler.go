@@ -4,6 +4,7 @@ type BaseClientHandler struct {
 	clientHandlerT ClientHandlerT
 	lifeSpan       LifeSpanHandlerT
 	request        RequestHandlerT
+	display        DisplayHandlerT
 }
 
 func (ch *BaseClientHandler) GetContextMenuHandler() ContextMenuHandlerT {
@@ -12,9 +13,14 @@ func (ch *BaseClientHandler) GetContextMenuHandler() ContextMenuHandlerT {
 func (ch *BaseClientHandler) GetDialogHandler() DialogHandlerT {
 	return DialogHandlerT{nil}
 }
-func (ch *BaseClientHandler) GetDisplayHandler() DisplayHandler {
-	return nil
+func (ch *BaseClientHandler) GetDisplayHandler() DisplayHandlerT {
+	return ch.display
 }
+func (ch *BaseClientHandler) SetDisplayHandler(dsp DisplayHandlerT) {
+	ch.display = dsp
+	return
+}
+
 func (ch *BaseClientHandler) GetDownloadHandler() DownloadHandler {
 	return nil
 }

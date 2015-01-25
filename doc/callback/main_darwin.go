@@ -26,7 +26,7 @@ func main() {
 	cocoa.ActivateApp()
 
 	ch := NewMyClientHandler()
-	chrome.CreateBrowser(window, ch, chrome.BrowserSettings{}, "http://www.google.com")
+	chrome.CreateBrowser(window, ch, chrome.BrowserSettings{}, "http://www.imgur.com")
 	// CEF loop and shutdown.
 	chrome.RunMessageLoop()
 	//chrome.Shutdown()
@@ -63,13 +63,36 @@ func (l *myClientHandler) BeforeClose(browser chrome.CefBrowserT) {
 	fmt.Println("lifespan::BeforeClose")
 }
 
-func (ch *myClientHandler) OnBeforeBrowse(browser chrome.CefBrowserT, frame chrome.CefFrameT, request chrome.CefRequestT, isRedirect int) int {
+func (l *myClientHandler) OnBeforeBrowse(browser chrome.CefBrowserT, frame chrome.CefFrameT, request chrome.CefRequestT, isRedirect int) int {
 	fmt.Println("Before browse: ", request.GetUrl())
 	return 0
 }
 func (l *myClientHandler) OnBeforeResourceLoad(browser chrome.CefBrowserT, frame chrome.CefFrameT, request chrome.CefRequestT) int {
+	fmt.Println("Resource Browse", request.GetUrl())
 	return 0
 }
 func (l *myClientHandler) OnCertificateError(errorCode chrome.CefErrorCode, requestUrl string, errorCallback chrome.CefCertErrorCallbackT) int {
 	return 0
+}
+
+func (d *myClientHandler) OnAddressChange(browser chrome.CefBrowserT, frame chrome.CefFrameT, url string) {
+
+}
+
+func (d *myClientHandler) OnTitleChange(browser chrome.CefBrowserT, title string) {
+
+}
+
+func (d *myClientHandler) OnToolTip(browser chrome.CefBrowserT, text string) bool {
+	fmt.Println("Tooltip: ", text)
+	return true
+}
+
+func (d *myClientHandler) OnStatusMessage(browser chrome.CefBrowserT, value string) {
+	fmt.Println("Status: ", value)
+}
+
+func (d *myClientHandler) OnConsoleMessage(browser chrome.CefBrowserT, message, source string, line int) bool {
+	fmt.Println("Console:[", source, ":", line, "] ", message)
+	return true
 }
