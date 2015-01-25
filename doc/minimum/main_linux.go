@@ -27,7 +27,7 @@ func main() {
 
 	// CEF loop and shutdown.
 	chrome.RunMessageLoop()
-	chrome.Shutdown()
+	//chrome.Shutdown()
 	os.Exit(0)
 }
 
