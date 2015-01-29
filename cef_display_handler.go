@@ -16,11 +16,11 @@ import (
 )
 
 type DisplayHandler interface {
-	OnAddressChange(browser CefBrowserT, frame CefFrameT, url string)
-	OnTitleChange(browser CefBrowserT, title string)
-	OnToolTip(browser CefBrowserT, text string) bool
-	OnStatusMessage(browser CefBrowserT, value string)
-	OnConsoleMessage(browser CefBrowserT, message, source string, line int) bool
+	OnAddressChange(browser Browser, frame CefFrameT, url string)
+	OnTitleChange(browser Browser, title string)
+	OnToolTip(browser Browser, text string) bool
+	OnStatusMessage(browser Browser, value string)
+	OnConsoleMessage(browser Browser, message, source string, line int) bool
 
 	GetDisplayHandler() DisplayHandlerT
 }
@@ -43,12 +43,12 @@ func go_OnAddressChange(self *C.struct__cef_display_handler_t,
 	browser *C.struct__cef_browser_t,
 	frame *C.struct__cef_frame_t,
 	url *C.char) {
-	defer CefBrowserT{browser}.Release()
+	defer Browser{browser}.Release()
 	defer CefFrameT{frame}.Release()
 
 	if handler, ok := displayHandlerMap[unsafe.Pointer(self)]; ok {
 		handler.OnAddressChange(
-			CefBrowserT{browser},
+			Browser{browser},
 			CefFrameT{frame},
 			C.GoString(url),
 		)
@@ -60,10 +60,10 @@ func go_OnAddressChange(self *C.struct__cef_display_handler_t,
 func go_OnTitleChange(self *C.struct__cef_display_handler_t,
 	browser *C.struct__cef_browser_t,
 	title *C.char) {
-	defer CefBrowserT{browser}.Release()
+	defer Browser{browser}.Release()
 	if handler, ok := displayHandlerMap[unsafe.Pointer(self)]; ok {
 		handler.OnTitleChange(
-			CefBrowserT{browser},
+			Browser{browser},
 			C.GoString(title),
 		)
 		return
@@ -75,10 +75,10 @@ func go_OnTitleChange(self *C.struct__cef_display_handler_t,
 func go_OnTooltip(self *C.struct__cef_display_handler_t,
 	browser *C.struct__cef_browser_t,
 	text *C.char) int {
-	defer CefBrowserT{browser}.Release()
+	defer Browser{browser}.Release()
 	if handler, ok := displayHandlerMap[unsafe.Pointer(self)]; ok {
 		if bVal := handler.OnToolTip(
-			CefBrowserT{browser},
+			Browser{browser},
 			C.GoString(text),
 		); bVal {
 			return 1
@@ -92,10 +92,10 @@ func go_OnTooltip(self *C.struct__cef_display_handler_t,
 func go_OnStatusMessage(self *C.struct__cef_display_handler_t,
 	browser *C.struct__cef_browser_t,
 	value *C.char) {
-	defer CefBrowserT{browser}.Release()
+	defer Browser{browser}.Release()
 	if handler, ok := displayHandlerMap[unsafe.Pointer(self)]; ok {
 		handler.OnStatusMessage(
-			CefBrowserT{browser},
+			Browser{browser},
 			C.GoString(value),
 		)
 		return
@@ -108,10 +108,10 @@ func go_OnConsoleMessage(self *C.struct__cef_display_handler_t,
 	message *C.char,
 	source *C.char,
 	line C.int) int {
-	defer CefBrowserT{browser}.Release()
+	defer Browser{browser}.Release()
 	if handler, ok := displayHandlerMap[unsafe.Pointer(self)]; ok {
 		if bVal := handler.OnConsoleMessage(
-			CefBrowserT{browser},
+			Browser{browser},
 			C.GoString(message),
 			C.GoString(source),
 			int(line),

@@ -144,8 +144,8 @@ func (f CefFrameT) GetUrl() string {
 	defer C.cef_string_userfree_utf8_free(cefString)
 	return C.GoString(cefString.str)
 }
-func (f CefFrameT) GetBrowser() CefBrowserT {
-	return CefBrowserT{C.cef_frame_t_get_browser(f.CStruct)}
+func (f CefFrameT) GetBrowser() Browser {
+	return Browser{C.cef_frame_t_get_browser(f.CStruct)}
 }
 func (f CefFrameT) GetV8context() CefV8ContextT {
 	return CefV8ContextT{C.cef_frame_t_get_v8context(f.CStruct)}

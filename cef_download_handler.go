@@ -36,8 +36,8 @@ var (
 )
 
 type DownloadHandler interface {
-	OnBeforeDownload(browser CefBrowserT, downloadItem CefDownloadItemT, suggestedName string, callback CefBeforeDownloadCallbackT) string
-	OnDownloadUpdated(browser CefBrowserT, downloadItem CefDownloadItemT, callback CefDownloadItemCallbackT)
+	OnBeforeDownload(browser Browser, downloadItem CefDownloadItemT, suggestedName string, callback CefBeforeDownloadCallbackT) string
+	OnDownloadUpdated(browser Browser, downloadItem CefDownloadItemT, callback CefDownloadItemCallbackT)
 
 	GetDownloadHandlerT() DownloadHandlerT
 }
@@ -187,14 +187,14 @@ func go_OnBeforeDownload(
 
 	if handler, ok := downloadHandlerMap[unsafe.Pointer(self)]; ok {
 		handler.OnBeforeDownload(
-			CefBrowserT{browser},
+			Browser{browser},
 			CefDownloadItemT{download_item},
 			str,
 			CefBeforeDownloadCallbackT{callback},
 		)
 		return
 	}
-	CefBrowserT{browser}.Release()
+	Browser{browser}.Release()
 	CefDownloadItemT{download_item}.Release()
 	CefBeforeDownloadCallbackT{callback}.Release()
 
@@ -209,13 +209,13 @@ func go_OnDownloadUpdated(
 
 	if handler, ok := downloadHandlerMap[unsafe.Pointer(self)]; ok {
 		handler.OnDownloadUpdated(
-			CefBrowserT{browser},
+			Browser{browser},
 			CefDownloadItemT{download_item},
 			CefDownloadItemCallbackT{callback},
 		)
 		return
 	}
-	CefBrowserT{browser}.Release()
+	Browser{browser}.Release()
 	CefDownloadItemT{download_item}.Release()
 	CefDownloadItemCallbackT{callback}.Release()
 

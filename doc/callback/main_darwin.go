@@ -47,27 +47,27 @@ type myClientHandler struct {
 	chrome.BaseClientHandler
 }
 
-func (l *myClientHandler) OnAfterCreated(browser chrome.CefBrowserT) {
+func (l *myClientHandler) OnAfterCreated(browser chrome.Browser) {
 	defer browser.Release()
 	fmt.Println("lifespan::OnAfterCreated")
 }
-func (l *myClientHandler) RunModal(browser chrome.CefBrowserT) int {
+func (l *myClientHandler) RunModal(browser chrome.Browser) int {
 	fmt.Println("lifespan::RunModal")
 	return 0
 }
-func (l *myClientHandler) DoClose(browser chrome.CefBrowserT) int {
+func (l *myClientHandler) DoClose(browser chrome.Browser) int {
 	fmt.Println("lifespan::DoClose")
 	return 0
 }
-func (l *myClientHandler) BeforeClose(browser chrome.CefBrowserT) {
+func (l *myClientHandler) BeforeClose(browser chrome.Browser) {
 	fmt.Println("lifespan::BeforeClose")
 }
 
-func (l *myClientHandler) OnBeforeBrowse(browser chrome.CefBrowserT, frame chrome.CefFrameT, request chrome.CefRequestT, isRedirect int) int {
+func (l *myClientHandler) OnBeforeBrowse(browser chrome.Browser, frame chrome.CefFrameT, request chrome.CefRequestT, isRedirect int) int {
 	fmt.Println("Before browse: ", request.GetUrl())
 	return 0
 }
-func (l *myClientHandler) OnBeforeResourceLoad(browser chrome.CefBrowserT, frame chrome.CefFrameT, request chrome.CefRequestT) int {
+func (l *myClientHandler) OnBeforeResourceLoad(browser chrome.Browser, frame chrome.CefFrameT, request chrome.CefRequestT) int {
 	fmt.Println("Resource Browse", request.GetUrl())
 	return 0
 }
@@ -75,24 +75,24 @@ func (l *myClientHandler) OnCertificateError(errorCode chrome.CefErrorCode, requ
 	return 0
 }
 
-func (d *myClientHandler) OnAddressChange(browser chrome.CefBrowserT, frame chrome.CefFrameT, url string) {
+func (d *myClientHandler) OnAddressChange(browser chrome.Browser, frame chrome.CefFrameT, url string) {
 
 }
 
-func (d *myClientHandler) OnTitleChange(browser chrome.CefBrowserT, title string) {
+func (d *myClientHandler) OnTitleChange(browser chrome.Browser, title string) {
 
 }
 
-func (d *myClientHandler) OnToolTip(browser chrome.CefBrowserT, text string) bool {
+func (d *myClientHandler) OnToolTip(browser chrome.Browser, text string) bool {
 	fmt.Println("Tooltip: ", text)
 	return true
 }
 
-func (d *myClientHandler) OnStatusMessage(browser chrome.CefBrowserT, value string) {
+func (d *myClientHandler) OnStatusMessage(browser chrome.Browser, value string) {
 	fmt.Println("Status: ", value)
 }
 
-func (d *myClientHandler) OnConsoleMessage(browser chrome.CefBrowserT, message, source string, line int) bool {
+func (d *myClientHandler) OnConsoleMessage(browser chrome.Browser, message, source string, line int) bool {
 	fmt.Println("Console:[", source, ":", line, "] ", message)
 	return true
 }

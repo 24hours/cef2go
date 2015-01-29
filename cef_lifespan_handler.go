@@ -20,10 +20,10 @@ import (
 var lifeSpanHandlerMap = make(map[unsafe.Pointer]LifeSpanHandler)
 
 type LifeSpanHandler interface {
-	OnAfterCreated(browser CefBrowserT)
-	RunModal(browser CefBrowserT) int
-	DoClose(browser CefBrowserT) int
-	BeforeClose(browser CefBrowserT)
+	OnAfterCreated(browser Browser)
+	RunModal(browser Browser) int
+	DoClose(browser Browser) int
+	BeforeClose(browser Browser)
 
 	GetLifeSpanHandler() LifeSpanHandlerT
 }
@@ -65,7 +65,7 @@ func go_OnBeforePopup(
 func go_OnAfterCreated(
 	self *C.struct__cef_life_span_handler_t,
 	browser *C.struct__cef_browser_t) {
-	b := CefBrowserT{browser}
+	b := Browser{browser}
 	defer b.Release()
 	if handler, ok := lifeSpanHandlerMap[unsafe.Pointer(self)]; ok {
 		handler.OnAfterCreated(b)
@@ -77,7 +77,7 @@ func go_OnAfterCreated(
 func go_RunModal(
 	self *C.struct__cef_life_span_handler_t,
 	browser *C.struct__cef_browser_t) int {
-	b := CefBrowserT{browser}
+	b := Browser{browser}
 	defer b.Release()
 	if handler, ok := lifeSpanHandlerMap[unsafe.Pointer(self)]; ok {
 		return handler.RunModal(b)
@@ -90,7 +90,7 @@ func go_DoClose(
 	self *C.struct__cef_life_span_handler_t,
 	browser *C.struct__cef_browser_t) int {
 
-	b := CefBrowserT{browser}
+	b := Browser{browser}
 	defer b.Release()
 	if handler, ok := lifeSpanHandlerMap[unsafe.Pointer(self)]; ok {
 		return handler.DoClose(b)
@@ -102,7 +102,7 @@ func go_DoClose(
 func go_BeforeClose(
 	self *C.struct__cef_life_span_handler_t,
 	browser *C.struct__cef_browser_t) {
-	b := CefBrowserT{browser}
+	b := Browser{browser}
 	defer b.Release()
 	if handler, ok := lifeSpanHandlerMap[unsafe.Pointer(self)]; ok {
 		handler.BeforeClose(b)

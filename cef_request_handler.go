@@ -20,8 +20,8 @@ var requestHandlerMap = make(map[unsafe.Pointer]RequestHandler)
 // Wraps the callbacks done to _cef_request_handler_t (partial implementation of callbacks)
 type RequestHandler interface {
 	/** Triggered before browsing to page. Return 1 to cancel transition. 0 to continue. */
-	OnBeforeBrowse(browser CefBrowserT, frame CefFrameT, request CefRequestT, isRedirect int) int
-	OnBeforeResourceLoad(browser CefBrowserT, frame CefFrameT, request CefRequestT) int
+	OnBeforeBrowse(browser Browser, frame CefFrameT, request CefRequestT, isRedirect int) int
+	OnBeforeResourceLoad(browser Browser, frame CefFrameT, request CefRequestT) int
 	/** Triggered when we encounter an invalid SSL cert. Return 1 to and call callback.cont() to continue or cancel the request.
 	  Return 0 to immediatly cancel the request.*/
 	OnCertificateError(errorCode CefErrorCode, requestUrl string, errorCallback CefCertErrorCallbackT) int
@@ -60,13 +60,13 @@ func go_OnBeforeBrowse(
 	request *C.struct__cef_request_t,
 	is_redirect int) int {
 
-	defer CefBrowserT{browser}.Release()
+	defer Browser{browser}.Release()
 	defer CefRequestT{request}.Release()
 	defer CefFrameT{frame}.Release()
 	if handler, ok := requestHandlerMap[unsafe.Pointer(self)]; ok {
 
 		return handler.OnBeforeBrowse(
-			CefBrowserT{browser},
+			Browser{browser},
 			CefFrameT{frame},
 			CefRequestT{request},
 			is_redirect,
@@ -82,12 +82,12 @@ func go_OnBeforeResourceLoad(
 	browser *C.struct__cef_browser_t,
 	frame *C.struct__cef_frame_t,
 	request *C.struct__cef_request_t) int {
-	defer CefBrowserT{browser}.Release()
+	defer Browser{browser}.Release()
 	defer CefFrameT{frame}.Release()
 	defer CefRequestT{request}.Release()
 	if handler, ok := requestHandlerMap[unsafe.Pointer(self)]; ok {
 		return handler.OnBeforeResourceLoad(
-			CefBrowserT{browser},
+			Browser{browser},
 			CefFrameT{frame},
 			CefRequestT{request},
 		)
@@ -103,7 +103,7 @@ func go_GetResourceHandler(
 	frame *C.struct__cef_frame_t,
 	request *C.struct__cef_request_t) *C.struct__cef_resource_handler_t {
 
-	CefBrowserT{browser}.Release()
+	Browser{browser}.Release()
 	CefFrameT{frame}.Release()
 	CefRequestT{request}.Release()
 
@@ -118,7 +118,7 @@ func go_OnResourceRedirect(
 	old_url *C.char,
 	new_url *C.char) {
 
-	CefBrowserT{browser}.Release()
+	Browser{browser}.Release()
 	CefFrameT{frame}.Release()
 }
 
@@ -134,7 +134,7 @@ func go_GetAuthCredentials(
 	scheme *C.char,
 	callback *C.struct__cef_auth_callback_t) int {
 
-	CefBrowserT{browser}.Release()
+	Browser{browser}.Release()
 	CefFrameT{frame}.Release()
 	Release(unsafe.Pointer(callback))
 	return 1
@@ -147,7 +147,7 @@ func go_OnQuotaRequest(
 	origin_url *C.char,
 	new_size int64,
 	callback *C.struct__cef_quota_callback_t) int {
-	CefBrowserT{browser}.Release()
+	Browser{browser}.Release()
 	Release(unsafe.Pointer(callback))
 	return 1
 }
@@ -159,7 +159,7 @@ func go_OnProtocolExecution(
 	url *C.char,
 	allow_os_execution unsafe.Pointer) {
 
-	CefBrowserT{browser}.Release()
+	Browser{browser}.Release()
 }
 
 //export go_OnCertificateError
@@ -188,7 +188,7 @@ func go_OnBeforePluginLoad(
 	policy_url *C.char,
 	info *C.struct__cef_web_plugin_info_t) int {
 
-	CefBrowserT{browser}.Release()
+	Browser{browser}.Release()
 	Release(unsafe.Pointer(info))
 	return 1
 }
@@ -198,7 +198,7 @@ func go_OnPluginCrashed(
 	self *C.struct__cef_request_handler_t,
 	browser *C.struct__cef_browser_t,
 	plugin_path *C.char) {
-	CefBrowserT{browser}.Release()
+	Browser{browser}.Release()
 }
 
 //export go_OnRenderProcessTerminated
@@ -207,7 +207,7 @@ func go_OnRenderProcessTerminated(
 	browser *C.struct__cef_browser_t,
 	status int, //C.enum_cef_termination_status_t
 ) {
-	CefBrowserT{browser}.Release()
+	Browser{browser}.Release()
 }
 
 func NewRequestHandlerT(request RequestHandler) RequestHandlerT {

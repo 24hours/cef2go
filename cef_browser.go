@@ -37,95 +37,95 @@ import (
 	"unsafe"
 )
 
-type CefBrowserT struct {
+type Browser struct {
 	CStruct *C.struct__cef_browser_t
 }
 
-func (b CefBrowserT) Release() {
+func (b Browser) Release() {
 	C.releaseVoid(unsafe.Pointer(b.CStruct))
 }
 
-func (b CefBrowserT) AddRef() {
+func (b Browser) AddRef() {
 	C.add_refVoid(unsafe.Pointer(b.CStruct))
 }
 
-func (b CefBrowserT) GetHost() CefBrowserHostT {
+func (b Browser) GetHost() CefBrowserHostT {
 	hostStruct := C.cef_browser_t_get_host(b.CStruct)
 	return CefBrowserHostT{hostStruct}
 }
 
-func (b CefBrowserT) CanGoBack() bool {
+func (b Browser) CanGoBack() bool {
 	return C.cef_browser_t_can_go_back(b.CStruct) == 1
 }
 
-func (b CefBrowserT) GoBack() {
+func (b Browser) GoBack() {
 	C.cef_browser_t_go_back(b.CStruct)
 }
 
-func (b CefBrowserT) CanGoForward() bool {
+func (b Browser) CanGoForward() bool {
 	return C.cef_browser_t_can_go_forward(b.CStruct) == 1
 }
 
-func (b CefBrowserT) GoForward() {
+func (b Browser) GoForward() {
 	C.cef_browser_t_go_forward(b.CStruct)
 }
 
-func (b CefBrowserT) IsLoading() bool {
+func (b Browser) IsLoading() bool {
 	return C.cef_browser_t_is_loading(b.CStruct) == 1
 }
 
-func (b CefBrowserT) Reload() {
+func (b Browser) Reload() {
 	C.cef_browser_t_reload(b.CStruct)
 }
 
-func (b CefBrowserT) ReloadIgnoreCache() {
+func (b Browser) ReloadIgnoreCache() {
 	C.cef_browser_t_reload_ignore_cache(b.CStruct)
 }
 
-func (b CefBrowserT) StopLoad() {
+func (b Browser) StopLoad() {
 	C.cef_browser_t_stop_load(b.CStruct)
 }
 
-func (b CefBrowserT) GetIdentifier() int {
+func (b Browser) GetIdentifier() int {
 	return int(C.cef_browser_t_get_identifier(b.CStruct))
 }
 
-func (b CefBrowserT) IsSame(other CefBrowserT) bool {
+func (b Browser) IsSame(other Browser) bool {
 	return C.cef_browser_t_is_same(b.CStruct, other.CStruct) == 1
 }
 
-func (b CefBrowserT) IsPopup() bool {
+func (b Browser) IsPopup() bool {
 	return C.cef_browser_t_is_popup(b.CStruct) == 1
 }
 
-func (b CefBrowserT) HasDocument() bool {
+func (b Browser) HasDocument() bool {
 	return C.cef_browser_t_has_document(b.CStruct) == 1
 }
 
-func (b CefBrowserT) GetMainFrame() CefFrameT {
+func (b Browser) GetMainFrame() CefFrameT {
 	return CefFrameT{C.cef_browser_t_get_main_frame(b.CStruct)}
 }
 
-func (b CefBrowserT) GetFocusedFrame() CefFrameT {
+func (b Browser) GetFocusedFrame() CefFrameT {
 	return CefFrameT{C.cef_browser_t_get_focused_frame(b.CStruct)}
 }
 
-func (b CefBrowserT) GetFrameByIdent(identifier int64) CefFrameT {
+func (b Browser) GetFrameByIdent(identifier int64) CefFrameT {
 	return CefFrameT{C.cef_browser_t_get_frame_byident(b.CStruct, C.int64(identifier))}
 }
 
-func (b CefBrowserT) GetFrame(name string) CefFrameT {
+func (b Browser) GetFrame(name string) CefFrameT {
 	cString := C.CString(name)
 	defer C.free(unsafe.Pointer(cString))
 	result := CefFrameT{C.cef_browser_t_get_frame(b.CStruct, cString)}
 	return result
 }
 
-func (b CefBrowserT) GetFrameCount() int64 {
+func (b Browser) GetFrameCount() int64 {
 	return int64(C.cef_browser_t_get_frame_count(b.CStruct))
 }
 
-func (b CefBrowserT) GetFrameIdentifiers() []int64 {
+func (b Browser) GetFrameIdentifiers() []int64 {
 	var count C.size_t = C.size_t(b.GetFrameCount())
 	var ids *C.int64 = (*C.int64)(C.calloc(count, C.sizeof_int64))
 	count = C.cef_browser_t_get_frame_identifiers(b.CStruct, count, ids)
@@ -139,7 +139,7 @@ func (b CefBrowserT) GetFrameIdentifiers() []int64 {
 	return result
 }
 
-func (b CefBrowserT) GetFrameNames() []string {
+func (b Browser) GetFrameNames() []string {
 	nameList := C.cef_string_list_alloc()
 	C.cef_browser_t_get_frame_names(b.CStruct, nameList)
 	length := int(C.cef_string_list_size(nameList))
@@ -157,4 +157,4 @@ func (b CefBrowserT) GetFrameNames() []string {
 	return goList
 }
 
-//func (b CefBrowserT) SendProcessMessage(targetProcess int, message *C.struct__cef_process_message_T) int
+//func (b Browser) SendProcessMessage(targetProcess int, message *C.struct__cef_process_message_T) int
