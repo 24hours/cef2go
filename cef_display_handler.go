@@ -16,7 +16,7 @@ import (
 )
 
 type DisplayHandler interface {
-	OnAddressChange(browser Browser, frame CefFrameT, url string)
+	OnAddressChange(browser Browser, frame Frame, url string)
 	OnTitleChange(browser Browser, title string)
 	OnToolTip(browser Browser, text string) bool
 	OnStatusMessage(browser Browser, value string)
@@ -44,12 +44,12 @@ func go_OnAddressChange(self *C.struct__cef_display_handler_t,
 	frame *C.struct__cef_frame_t,
 	url *C.char) {
 	defer Browser{browser}.Release()
-	defer CefFrameT{frame}.Release()
+	defer Frame{frame}.Release()
 
 	if handler, ok := displayHandlerMap[unsafe.Pointer(self)]; ok {
 		handler.OnAddressChange(
 			Browser{browser},
-			CefFrameT{frame},
+			Frame{frame},
 			C.GoString(url),
 		)
 		return

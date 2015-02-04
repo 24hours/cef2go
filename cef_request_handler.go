@@ -20,8 +20,8 @@ var requestHandlerMap = make(map[unsafe.Pointer]RequestHandler)
 // Wraps the callbacks done to _cef_request_handler_t (partial implementation of callbacks)
 type RequestHandler interface {
 	/** Triggered before browsing to page. Return 1 to cancel transition. 0 to continue. */
-	OnBeforeBrowse(browser Browser, frame CefFrameT, request CefRequestT, isRedirect int) int
-	OnBeforeResourceLoad(browser Browser, frame CefFrameT, request CefRequestT) int
+	OnBeforeBrowse(browser Browser, frame Frame, request CefRequestT, isRedirect int) int
+	OnBeforeResourceLoad(browser Browser, frame Frame, request CefRequestT) int
 	/** Triggered when we encounter an invalid SSL cert. Return 1 to and call callback.cont() to continue or cancel the request.
 	  Return 0 to immediatly cancel the request.*/
 	OnCertificateError(errorCode CefErrorCode, requestUrl string, errorCallback CefCertErrorCallbackT) int
@@ -62,12 +62,12 @@ func go_OnBeforeBrowse(
 
 	defer Browser{browser}.Release()
 	defer CefRequestT{request}.Release()
-	defer CefFrameT{frame}.Release()
+	defer Frame{frame}.Release()
 	if handler, ok := requestHandlerMap[unsafe.Pointer(self)]; ok {
 
 		return handler.OnBeforeBrowse(
 			Browser{browser},
-			CefFrameT{frame},
+			Frame{frame},
 			CefRequestT{request},
 			is_redirect,
 		)
@@ -83,12 +83,12 @@ func go_OnBeforeResourceLoad(
 	frame *C.struct__cef_frame_t,
 	request *C.struct__cef_request_t) int {
 	defer Browser{browser}.Release()
-	defer CefFrameT{frame}.Release()
+	defer Frame{frame}.Release()
 	defer CefRequestT{request}.Release()
 	if handler, ok := requestHandlerMap[unsafe.Pointer(self)]; ok {
 		return handler.OnBeforeResourceLoad(
 			Browser{browser},
-			CefFrameT{frame},
+			Frame{frame},
 			CefRequestT{request},
 		)
 	}
@@ -104,7 +104,7 @@ func go_GetResourceHandler(
 	request *C.struct__cef_request_t) *C.struct__cef_resource_handler_t {
 
 	Browser{browser}.Release()
-	CefFrameT{frame}.Release()
+	Frame{frame}.Release()
 	CefRequestT{request}.Release()
 
 	return nil
@@ -119,7 +119,7 @@ func go_OnResourceRedirect(
 	new_url *C.char) {
 
 	Browser{browser}.Release()
-	CefFrameT{frame}.Release()
+	Frame{frame}.Release()
 }
 
 //export go_GetAuthCredentials
@@ -135,7 +135,7 @@ func go_GetAuthCredentials(
 	callback *C.struct__cef_auth_callback_t) int {
 
 	Browser{browser}.Release()
-	CefFrameT{frame}.Release()
+	Frame{frame}.Release()
 	Release(unsafe.Pointer(callback))
 	return 1
 }

@@ -102,22 +102,22 @@ func (b Browser) HasDocument() bool {
 	return C.cef_browser_t_has_document(b.CStruct) == 1
 }
 
-func (b Browser) GetMainFrame() CefFrameT {
-	return CefFrameT{C.cef_browser_t_get_main_frame(b.CStruct)}
+func (b Browser) GetMainFrame() Frame {
+	return Frame{C.cef_browser_t_get_main_frame(b.CStruct)}
 }
 
-func (b Browser) GetFocusedFrame() CefFrameT {
-	return CefFrameT{C.cef_browser_t_get_focused_frame(b.CStruct)}
+func (b Browser) GetFocusedFrame() Frame {
+	return Frame{C.cef_browser_t_get_focused_frame(b.CStruct)}
 }
 
-func (b Browser) GetFrameByIdent(identifier int64) CefFrameT {
-	return CefFrameT{C.cef_browser_t_get_frame_byident(b.CStruct, C.int64(identifier))}
+func (b Browser) GetFrameByIdent(identifier int64) Frame {
+	return Frame{C.cef_browser_t_get_frame_byident(b.CStruct, C.int64(identifier))}
 }
 
-func (b Browser) GetFrame(name string) CefFrameT {
+func (b Browser) GetFrame(name string) Frame {
 	cString := C.CString(name)
 	defer C.free(unsafe.Pointer(cString))
-	result := CefFrameT{C.cef_browser_t_get_frame(b.CStruct, cString)}
+	result := Frame{C.cef_browser_t_get_frame(b.CStruct, cString)}
 	return result
 }
 
