@@ -2,7 +2,7 @@
 // License: BSD 3-clause.
 // Website: https://github.com/CzarekTomczak/cef2go
 
-package cocoa
+package ui
 
 /*
 #cgo CFLAGS: -x objective-c
