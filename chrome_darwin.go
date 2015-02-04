@@ -7,6 +7,7 @@ package chrome
 /*
 #cgo CFLAGS: -I./ -x objective-c
 #cgo LDFLAGS: -framework Cocoa
+#cgo LDFLAGS: -headerpad_max_install_names
 #include <stdlib.h>
 #include <string.h>
 #include "include/capi/cef_app_capi.h"
