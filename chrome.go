@@ -55,8 +55,10 @@ var _MainArgs *C.struct__cef_main_args_t
 var _SandboxInfo unsafe.Pointer
 
 type WindowInfo struct {
-	Ptr unsafe.Pointer
-	Hdl uint64
+	Ptr                 unsafe.Pointer
+	Hdl                 uint64
+	Hidden              int
+	WindowlessRendering int
 }
 
 func init() {

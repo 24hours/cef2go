@@ -54,7 +54,8 @@ func FillWindowInfo(windowInfo *C.cef_window_info_t, hwnd WindowInfo) {
 	windowInfo.y = C.int(bounds.origin.y)
 	windowInfo.width = C.int(bounds.size.width)
 	windowInfo.height = C.int(bounds.size.height)
-
+	windowInfo.hidden = C.int(hwnd.Hidden)
+	windowInfo.windowless_rendering_enabled = C.int(hwnd.WindowlessRendering)
 	// parent
 	windowInfo.parent_view = hwnd.Ptr
 }
