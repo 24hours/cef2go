@@ -5,6 +5,7 @@ type BaseClientHandler struct {
 	lifeSpan       LifeSpanHandlerT
 	request        RequestHandlerT
 	display        DisplayHandlerT
+	download       DownloadHandlerT
 }
 
 func (ch *BaseClientHandler) GetContextMenuHandler() ContextMenuHandlerT {
@@ -21,9 +22,15 @@ func (ch *BaseClientHandler) SetDisplayHandler(dsp DisplayHandlerT) {
 	return
 }
 
-func (ch *BaseClientHandler) GetDownloadHandler() DownloadHandler {
-	return nil
+func (ch *BaseClientHandler) GetDownloadHandler() DownloadHandlerT {
+	return ch.download
 }
+
+func (ch *BaseClientHandler) SetDownloadHandler(download DownloadHandlerT) {
+	ch.download = download
+	return
+}
+
 func (ch *BaseClientHandler) GetDragHandler() DragHandlerT {
 	return DragHandlerT{nil}
 }

@@ -29,15 +29,16 @@ extern cef_string_utf8_t* callCefDownloadItem_get_content_disposition(struct _ce
 extern cef_string_utf8_t* callCefDownloadItem_get_mime_type(struct _cef_download_item_t* self);
 */
 import "C"
-import "unsafe"
-
-var (
-	downloadHandlerMap = make(map[unsafe.Pointer]DownloadHandler)
+import (
+	log "github.com/cihub/seelog"
+	"unsafe"
 )
 
+var downloadHandlerMap = make(map[unsafe.Pointer]DownloadHandler)
+
 type DownloadHandler interface {
-	OnBeforeDownload(browser Browser, downloadItem CefDownloadItemT, suggestedName string, callback CefBeforeDownloadCallbackT) string
-	OnDownloadUpdated(browser Browser, downloadItem CefDownloadItemT, callback CefDownloadItemCallbackT)
+	OnBeforeDownload(browser Browser, downloadItem DownloadItem, suggestedName string, callback BeforeDownloadCallback)
+	OnDownloadUpdated(browser Browser, downloadItem DownloadItem, callback DownloadItemCallback)
 
 	GetDownloadHandlerT() DownloadHandlerT
 }
@@ -46,6 +47,7 @@ type DownloadHandlerT struct {
 	CStruct *C.struct__cef_download_handler_t
 }
 
+//TODO: implement house keeping code elsewhere
 func (r DownloadHandlerT) AddRef() {
 	AddRef(unsafe.Pointer(r.CStruct))
 }
@@ -57,11 +59,11 @@ type CefTimeT struct {
 	Self C.cef_time_t
 }
 
-type CefBeforeDownloadCallbackT struct {
+type BeforeDownloadCallback struct {
 	Self *C.struct__cef_before_download_callback_t
 }
 
-func (c CefBeforeDownloadCallbackT) Cont(downloadPath string, showDialog bool) {
+func (c BeforeDownloadCallback) Cont(downloadPath string, showDialog bool) {
 	var downloadPathCString *C.char = C.CString(downloadPath)
 	defer C.free(unsafe.Pointer(downloadPathCString))
 	showDialogInt := 0
@@ -71,73 +73,80 @@ func (c CefBeforeDownloadCallbackT) Cont(downloadPath string, showDialog bool) {
 	C.callBeforeDownloadCallback_cont(c.Self, downloadPathCString, C.int(showDialogInt))
 }
 
-func (c CefBeforeDownloadCallbackT) Release() {
+func (c BeforeDownloadCallback) Release() {
 	C.releaseVoid(unsafe.Pointer(c.Self))
 }
 
-type CefDownloadItemCallbackT struct {
+type DownloadItemCallback struct {
 	Self *C.struct__cef_download_item_callback_t
 }
 
-func (c CefDownloadItemCallbackT) Cancel() {
+func (c DownloadItemCallback) Cancel() {
 	C.callDownloadItemCallback_cancel(c.Self)
 }
 
-func (c CefDownloadItemCallbackT) Release() {
+func (c DownloadItemCallback) Release() {
 	C.releaseVoid(unsafe.Pointer(c.Self))
 }
 
-type CefDownloadItemT struct {
+type DownloadItem struct {
 	Self *C.struct__cef_download_item_t
 }
 
-func (c CefDownloadItemT) Release() {
+func (c DownloadItem) Release() {
 	C.releaseVoid(unsafe.Pointer(c.Self))
 }
 
-func (c CefDownloadItemT) IsValid() bool {
+func (c DownloadItem) IsValid() bool {
 	if C.callCefDownloadItem_is_valid(c.Self) == 0 {
 		return false
+	} else {
+		return true
 	}
-	return true
 }
-func (c CefDownloadItemT) IsInProgress() bool {
+
+func (c DownloadItem) IsInProgress() bool {
 	if C.callCefDownloadItem_is_in_progress(c.Self) == 0 {
 		return false
+	} else {
+		return true
 	}
-	return true
 }
-func (c CefDownloadItemT) IsComplete() bool {
+func (c DownloadItem) IsComplete() bool {
 	if C.callCefDownloadItem_is_complete(c.Self) == 0 {
 		return false
+	} else {
+		return true
 	}
-	return true
 }
-func (c CefDownloadItemT) IsCanceled() bool {
+
+func (c DownloadItem) IsCanceled() bool {
 	if C.callCefDownloadItem_is_canceled(c.Self) == 0 {
 		return false
+	} else {
+		return true
 	}
-	return true
 }
-func (c CefDownloadItemT) GetCurrentSpeed() int64 {
+
+func (c DownloadItem) GetCurrentSpeed() int64 {
 	return int64(C.callCefDownloadItem_get_current_speed(c.Self))
 }
-func (c CefDownloadItemT) GetPercentComplete() int {
+func (c DownloadItem) GetPercentComplete() int {
 	return int(C.callCefDownloadItem_get_percent_complete(c.Self))
 }
-func (c CefDownloadItemT) GetTotalBytes() int64 {
+func (c DownloadItem) GetTotalBytes() int64 {
 	return int64(C.callCefDownloadItem_get_total_bytes(c.Self))
 }
-func (c CefDownloadItemT) GetReceivedBytes() int64 {
+func (c DownloadItem) GetReceivedBytes() int64 {
 	return int64(C.callCefDownloadItem_get_received_bytes(c.Self))
 }
-func (c CefDownloadItemT) GetStartTime() CefTimeT {
+func (c DownloadItem) GetStartTime() CefTimeT {
 	return CefTimeT{C.callCefDownloadItem_get_start_time(c.Self)}
 }
-func (c CefDownloadItemT) GetEndTime() CefTimeT {
+func (c DownloadItem) GetEndTime() CefTimeT {
 	return CefTimeT{C.callCefDownloadItem_get_end_time(c.Self)}
 }
-func (c CefDownloadItemT) GetFullPath() string {
+func (c DownloadItem) GetFullPath() string {
 	stringStruct := C.callCefDownloadItem_get_full_path(c.Self)
 	if stringStruct == nil {
 		return ""
@@ -146,28 +155,28 @@ func (c CefDownloadItemT) GetFullPath() string {
 	str := C.GoString(stringStruct.str)
 	return str
 }
-func (c CefDownloadItemT) GetId() uint32 {
+func (c DownloadItem) GetId() uint32 {
 	return uint32(C.callCefDownloadItem_get_id(c.Self))
 }
-func (c CefDownloadItemT) GetUrl() string {
+func (c DownloadItem) GetUrl() string {
 	stringStruct := C.callCefDownloadItem_get_url(c.Self)
 	defer C.cef_string_userfree_utf8_free(stringStruct)
 	str := C.GoString(stringStruct.str)
 	return str
 }
-func (c CefDownloadItemT) GetSuggestedFileName() string {
+func (c DownloadItem) GetSuggestedFileName() string {
 	stringStruct := C.callCefDownloadItem_get_suggested_file_name(c.Self)
 	defer C.cef_string_userfree_utf8_free(stringStruct)
 	str := C.GoString(stringStruct.str)
 	return str
 }
-func (c CefDownloadItemT) GetContentDisposition() string {
+func (c DownloadItem) GetContentDisposition() string {
 	stringStruct := C.callCefDownloadItem_get_content_disposition(c.Self)
 	defer C.cef_string_userfree_utf8_free(stringStruct)
 	str := C.GoString(stringStruct.str)
 	return str
 }
-func (c CefDownloadItemT) GetMimeType() string {
+func (c DownloadItem) GetMimeType() string {
 	stringStruct := C.callCefDownloadItem_get_mime_type(c.Self)
 	defer C.cef_string_userfree_utf8_free(stringStruct)
 	str := C.GoString(stringStruct.str)
@@ -185,18 +194,19 @@ func go_OnBeforeDownload(
 	defer C.cef_string_userfree_utf8_free(suggested_name)
 	str := C.GoString(suggested_name.str)
 
+	defer Browser{browser}.Release()
+	defer DownloadItem{download_item}.Release()
+	defer BeforeDownloadCallback{callback}.Release()
+
 	if handler, ok := downloadHandlerMap[unsafe.Pointer(self)]; ok {
 		handler.OnBeforeDownload(
 			Browser{browser},
-			CefDownloadItemT{download_item},
+			DownloadItem{download_item},
 			str,
-			CefBeforeDownloadCallbackT{callback},
+			BeforeDownloadCallback{callback},
 		)
-		return
 	}
-	Browser{browser}.Release()
-	CefDownloadItemT{download_item}.Release()
-	CefBeforeDownloadCallbackT{callback}.Release()
+	return
 
 }
 
@@ -207,24 +217,26 @@ func go_OnDownloadUpdated(
 	download_item *C.struct__cef_download_item_t,
 	callback *C.struct__cef_download_item_callback_t) {
 
+	defer Browser{browser}.Release()
+	defer DownloadItem{download_item}.Release()
+	defer DownloadItemCallback{callback}.Release()
+
 	if handler, ok := downloadHandlerMap[unsafe.Pointer(self)]; ok {
 		handler.OnDownloadUpdated(
 			Browser{browser},
-			CefDownloadItemT{download_item},
-			CefDownloadItemCallbackT{callback},
+			DownloadItem{download_item},
+			DownloadItemCallback{callback},
 		)
-		return
 	}
-	Browser{browser}.Release()
-	CefDownloadItemT{download_item}.Release()
-	CefDownloadItemCallbackT{callback}.Release()
-
+	return
 }
 
 func NewDownloadHandlerT(download DownloadHandler) DownloadHandlerT {
 	var handler DownloadHandlerT
 	handler.CStruct = (*C.struct__cef_download_handler_t)(
 		C.calloc(1, C.sizeof_struct__cef_download_handler_t))
+	log.Info("initialize LifeSpanHandler")
+
 	C.initialize_download_handler(handler.CStruct)
 	go_AddRef(unsafe.Pointer(handler.CStruct))
 	downloadHandlerMap[unsafe.Pointer(handler.CStruct)] = download

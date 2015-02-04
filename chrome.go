@@ -151,6 +151,11 @@ func CreateBrowser(hwnd WindowInfo,
 			clientHandler.SetDisplayHandler(NewDisplayHandlerT(dsp))
 		}
 
+		if dl, ok := clientHandler.(DownloadHandler); ok {
+			log.Debug("Registering Download handler ")
+			clientHandler.SetDownloadHandler(NewDownloadHandlerT(dl))
+		}
+
 		ch = clientHandler.GetClientHandlerT().CStruct
 		go_AddRef(unsafe.Pointer(ch))
 	}

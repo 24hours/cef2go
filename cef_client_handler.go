@@ -31,7 +31,9 @@ type ClientHandler interface {
 	GetDialogHandler() DialogHandlerT
 	SetDisplayHandler(DisplayHandlerT)
 	GetDisplayHandler() DisplayHandlerT
-	GetDownloadHandler() DownloadHandler
+	GetDownloadHandler() DownloadHandlerT
+	SetDownloadHandler(DownloadHandlerT)
+
 	GetDragHandler() DragHandlerT
 	GetFocusHandler() FocusHandlerT
 	GetGeoLocationHandler() GeolocationHandlerT
@@ -111,9 +113,10 @@ func go_GetDisplayHandler(self *C.struct__cef_client_t) *C.struct__cef_display_h
 func go_GetDownloadHandler(self *C.struct__cef_client_t) *C.struct__cef_download_handler_t {
 	if handler, ok := clientHandlerMap[unsafe.Pointer(self)]; ok {
 		res := handler.GetDownloadHandler()
-		if res != nil {
-			res.GetDownloadHandlerT().AddRef()
-			return res.GetDownloadHandlerT().CStruct
+		empty := DownloadHandlerT{nil}
+		if res != empty {
+			res.AddRef()
+			return res.CStruct
 		}
 	}
 	return nil
