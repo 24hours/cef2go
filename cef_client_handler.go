@@ -43,6 +43,8 @@ type ClientHandler interface {
 	GetLifeSpanHandler() LifeSpanHandlerT
 	GetLoadHandler() LoadHandlerT
 	GetRenderHandler() RenderHandlerT
+	SetRenderHandler(RenderHandlerT)
+
 	SetRequestHandler(RequestHandlerT)
 	GetRequestHandler() RequestHandlerT
 	SetClientHandlerT(ClientHandlerT)
@@ -73,9 +75,6 @@ type KeyboardHandlerT struct {
 }
 type LoadHandlerT struct {
 	CStruct *C.struct__cef_load_handler_t
-}
-type RenderHandlerT struct {
-	CStruct *C.struct__cef_render_handler_t
 }
 
 //export go_GetContextMenuHandler

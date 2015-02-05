@@ -6,6 +6,7 @@ type BaseClientHandler struct {
 	request        RequestHandlerT
 	display        DisplayHandlerT
 	download       DownloadHandlerT
+	render         RenderHandlerT
 }
 
 func (ch *BaseClientHandler) GetContextMenuHandler() ContextMenuHandlerT {
@@ -60,7 +61,12 @@ func (ch *BaseClientHandler) GetLoadHandler() LoadHandlerT {
 	return LoadHandlerT{nil}
 }
 func (ch *BaseClientHandler) GetRenderHandler() RenderHandlerT {
-	return RenderHandlerT{nil}
+	return ch.render
+}
+
+func (ch *BaseClientHandler) SetRenderHandler(render RenderHandlerT) {
+	ch.render = render
+	return
 }
 
 func (ch *BaseClientHandler) SetRequestHandler(rqh RequestHandlerT) {
