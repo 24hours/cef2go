@@ -47,15 +47,16 @@ func FillWindowInfo(windowInfo *C.cef_window_info_t, hwnd WindowInfo) {
 	// defer C.free(unsafe.Pointer(windowName))
 	// C.cef_string_from_utf8(windowName, C.strlen(windowName),
 	//        &windowInfo.window_name)
+	if hwnd.Ptr != nil {
+		var bounds C.NSRect = C.GetWindowBounds(hwnd.Ptr)
 
-	var bounds C.NSRect = C.GetWindowBounds(hwnd.Ptr)
-
-	windowInfo.x = C.int(bounds.origin.x)
-	windowInfo.y = C.int(bounds.origin.y)
-	windowInfo.width = C.int(bounds.size.width)
-	windowInfo.height = C.int(bounds.size.height)
+		windowInfo.x = C.int(bounds.origin.x)
+		windowInfo.y = C.int(bounds.origin.y)
+		windowInfo.width = C.int(bounds.size.width)
+		windowInfo.height = C.int(bounds.size.height)
+		// parent
+		windowInfo.parent_view = hwnd.Ptr
+	}
 	windowInfo.hidden = C.int(hwnd.Hidden)
 	windowInfo.windowless_rendering_enabled = C.int(hwnd.WindowlessRendering)
-	// parent
-	windowInfo.parent_view = hwnd.Ptr
 }
