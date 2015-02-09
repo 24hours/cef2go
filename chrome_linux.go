@@ -46,12 +46,17 @@ func FillMainArgs(mainArgs *C.struct__cef_main_args_t,
 }
 
 func FillWindowInfo(windowInfo *C.cef_window_info_t, hwnd WindowInfo) {
-	var info C.struct_gtkInfo = C.getBound((*C.GtkWidget)(hwnd.Ptr))
-	windowInfo.parent_window = C.ulong(hwnd.Hdl)
+	if hwnd.Ptr != nil {
+		var info C.struct_gtkInfo = C.getBound((*C.GtkWidget)(hwnd.Ptr))
+		windowInfo.parent_window = C.ulong(hwnd.Hdl)
 
-	windowInfo.x = 0
-	windowInfo.y = 0
-	windowInfo.width = C.uint(info.width)
-	windowInfo.height = C.uint(info.height)
+		windowInfo.x = 0
+		windowInfo.y = 0
+		windowInfo.width = C.uint(info.width)
+		windowInfo.height = C.uint(info.height)
+	}
+	windowInfo.windowless_rendering_enabled = C.int(hwnd.WindowlessRendering)
+	windowInfo.height = C.uint(hwnd.Height)
+	windowInfo.width = C.uint(hwnd.Width)
 
 }
