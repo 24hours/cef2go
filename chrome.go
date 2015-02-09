@@ -57,13 +57,22 @@ var _SandboxInfo unsafe.Pointer
 type WindowInfo struct {
 	Ptr                 unsafe.Pointer
 	Hdl                 uint64
-	Hidden              int
 	WindowlessRendering int
+	Height              int
+	Width               int
 }
 
 func init() {
 	logger, _ = log.LoggerFromWriterWithMinLevelAndFormat(os.Stdout, 0, "[%Level] %File:%Line: %Msg %n")
 	log.ReplaceLogger(logger)
+}
+
+func NewWindowInfo(height, width int) WindowInfo {
+	ret := WindowInfo{}
+	ret.Height = height
+	ret.Width = width
+
+	return ret
 }
 
 func ExecuteProcess(programHandle unsafe.Pointer, appHandler AppHandler) int {

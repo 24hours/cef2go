@@ -192,7 +192,11 @@ func go_GetLoadHandler(self *C.struct__cef_client_t) *C.struct__cef_load_handler
 func go_GetRenderHandler(self *C.struct__cef_client_t) *C.struct__cef_render_handler_t {
 	if handler, ok := clientHandlerMap[unsafe.Pointer(self)]; ok {
 		res := handler.GetRenderHandler()
-		return res.CStruct
+		empty := RenderHandlerT{nil}
+		if res != empty {
+			res.AddRef()
+			return res.CStruct
+		}
 	}
 	return nil
 }
