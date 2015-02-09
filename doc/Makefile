@@ -4,7 +4,7 @@ export GOPATH=$(PWD)
 UNAME_S = $(shell uname -s)
 
 ifeq ($(UNAME_S), Linux)
-	export CGO_LDFLAGS=-L $(PWD)/Release -lcef
+	export CGO_LDFLAGS=-L $(PWD)/Release 
 else #ifeq ($(UNAME_S), Darwin)
 	export CGO_ENABLED=1
 	export CGO_LDFLAGS=-F$(PWD)/Release/tmp -framework Cocoa -framework cef

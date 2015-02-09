@@ -5,6 +5,7 @@
 package ui
 
 /*
+#cgo LDFLAGS: -lcef
 #cgo CFLAGS: -I../
 #cgo pkg-config: --libs --cflags gtk+-2.0
 #include <gtk/gtk.h>
