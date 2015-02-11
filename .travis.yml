@@ -1,0 +1,16 @@
+language: go
+
+go:
+ - tip
+ - 1.4
+
+install:
+ - go get github.com/cihub/seelog
+ - go get github.com/stretchr/testify
+
+
+before_script:
+ - wget https://github.com/24hours/chrome/releases/download/v0.1.0/Release.zip
+ - unzip ./Release.zip
+
+script: go test -ldflags "-r ./Release"
