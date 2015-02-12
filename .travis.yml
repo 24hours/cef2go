@@ -4,7 +4,7 @@ go:
 install:
 - go get github.com/cihub/seelog
 - go get github.com/stretchr/testify
-- go get code.google.com/p/go.tools/cmd/cover
+- go get golang.org/x/tools/cmd/cover
 - go get github.com/mattn/goveralls
 before_script:
 - sudo apt-get install libatk1.0-0 libc6 libasound2 libcairo2 libcap2 libcups2 libexpat1
