@@ -24,7 +24,7 @@ func TestMain(m *testing.M) {
 	flag.String("gpu-driver-vendor", "foo", "-") 
 	flag.String("gpu-driver-version", "foo", "-")
 	flag.String("channel", "foo", "-")
-
+	flag.String("no-sandbox", "foo", "-")
 
 	gopath := os.Getenv("GOPATH")
 	os.Chdir(fmt.Sprintf("%s/%s", gopath, "src/github/24hours/chrome/Release"))
