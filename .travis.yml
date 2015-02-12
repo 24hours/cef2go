@@ -15,8 +15,10 @@ before_script:
   libpulse0 libbz2-1.0 libnss3-dev libgconf2-dev libudev-dev
 - wget https://github.com/24hours/chrome/releases/download/v0.1.0/Release.zip
 - unzip ./Release.zip
+- cd ./Release
 - sudo chown root:root chrome-sandbox
 - sudo chmod 4755 chrome-sandbox
+- cd ../
 - export CGO_LDFLAGS="-L `pwd`/Release -lcef"
 script: 
 - go test -covermode=count -coverprofile=coverage.out -o Release/chrome.test -ldflags "-r ./Release"
