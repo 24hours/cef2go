@@ -37,6 +37,7 @@ func TestBasic(t *testing.T) {
 
 func TestBase(t *testing.T) {
 	settings := chrome.NewSettings()
+	settings.NoSandbox = 1
 	assert.Equal(t, 1, chrome.Initialize(settings, nil), "Initialize")
 	chrome.Shutdown()
 }
