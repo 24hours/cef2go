@@ -1,7 +1,6 @@
 language: go
 go:
 - tip
-- 1.4
 install:
 - go get github.com/cihub/seelog
 - go get github.com/stretchr/testify
@@ -18,8 +17,8 @@ before_script:
 - unzip ./Release.zip
 - export CGO_LDFLAGS="-L `pwd`/Release -lcef"
 script: 
--go test -covermode=count -coverprofile=coverage.out -ldflags "-r ./Release"
-$HOME/gopath/bin/goveralls -coverprofile=coverage.out -service=travis-ci -repotoken $COVERALLS_TOKEN
+- go test -covermode=count -coverprofile=coverage.out -ldflags "-r ./Release"
+- $HOME/gopath/bin/goveralls -coverprofile=coverage.out -service=travis-ci -repotoken $COVERALLS_TOKEN
 env:
   global:
     secure: C8dv4BkdKwsagfw8VNEVrHIywfhp92+8SGuZlvH+/3M5yrtf7Ob4/ecMRQAcf+c+IFx7xkgOTg4yzqtbCNPkmA/vWH3PEEay7+RHC3Sg/BxuWNdat5BmDPTZXQXymPdTOLpnphgLP/8g2cs0FZaevqSxSLMU2vFnIrnQ3zLKEt0=
