@@ -6,6 +6,7 @@ import (
 	"testing"
 	"os"
 	"flag"
+	"fmt"
 )
 
 func TestMain(m *testing.M) { 
