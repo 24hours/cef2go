@@ -1,7 +1,6 @@
-package chrome_test
+package chrome
 
 import (
-	"github.com/24hours/chrome"
 	"github.com/stretchr/testify/assert"
 	"testing"
 	"os"
@@ -32,12 +31,15 @@ func TestMain(m *testing.M) {
 }
 
 func TestBasic(t *testing.T) {
-	assert.Equal(t, -1, chrome.ExecuteProcess(nil, nil), "ExecuteProcess should return -1")
+	assert.Equal(t, -1, ExecuteProcess(nil, nil), "ExecuteProcess should return -1")
 }
 
+// TODO : make sure setting actually work 
+
 func TestBase(t *testing.T) {
-	settings := chrome.NewSettings()
+	settings := NewSettings()
 	settings.NoSandbox = 1
-	assert.Equal(t, 1, chrome.Initialize(settings, nil), "Initialize")
+	// TODO : insert path here 
+	assert.Equal(t, 1, Initialize(settings, nil), "Initialize")
 	//chrome.Shutdown()
 }
