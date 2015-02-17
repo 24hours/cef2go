@@ -63,6 +63,15 @@ type WindowInfo struct {
 }
 
 func init() {
+	DisableLog()
+}
+
+func DisableLog() {
+    logger = log.Disabled
+    log.ReplaceLogger(logger)
+}
+
+func EnableLog(){
 	logger, _ = log.LoggerFromWriterWithMinLevelAndFormat(os.Stdout, 0, "[%Level] %File:%Line: %Msg %n")
 	log.ReplaceLogger(logger)
 }
