@@ -1,10 +1,11 @@
-.PHONY: detect_os Linux Darwin clean
+#!/bin/bash
+.PHONY: detect_os test Linux Darwin clean
 
 export GOPATH=$(PWD)
 UNAME_S = $(shell uname -s)
 
 ifeq ($(UNAME_S), Linux)
-	export CGO_LDFLAGS=-L $(PWD)/Release 
+	export CGO_LDFLAGS=-L $(PWD)/Release -lcef
 else #ifeq ($(UNAME_S), Darwin)
 	export CGO_ENABLED=1
 	export CGO_LDFLAGS=-F$(PWD)/Release/tmp -framework Cocoa -framework cef
@@ -12,6 +13,10 @@ endif
 
 detect_os:
 	make $(UNAME_S)
+
+test:
+	clear
+	cd ./src/github.com/24hours/chrome ; pwd ; export CGO_LDFLAGS="-L `pwd`/Release -lcef" ; go test -o Release/chrome.test -ldflags "-r ./Release" ; cd ../../../../
 
 Linux:
 	clear
