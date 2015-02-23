@@ -45,15 +45,14 @@ func TestBasic(t *testing.T) {
 	settings.NoSandbox = 1
 	settings.ResourcesDirPath = cwd + "/Release"
 	settings.LocalesDirPath = cwd + "/Release/locales"
+	//settings.WindowlessRenderingEnabled = 1
 	assert.Equal(t, 1, Initialize(settings, nil), "Initialize must return 1")
+	go RunMessageLoop()
+	
+	window := NewWindowInfo(800, 640)
+	//window.WindowlessRendering = 1
+	CreateBrowser(window, nil, BrowserSettings{}, "file:///home/u24/Desktop/index.html")
+	
+	QuitMessageLoop()
 	Shutdown() // the test consider a success if it didn't crash immediately
-}
-
-func TestBase(t *testing.T) {
-	assert.Equal(t, -1, ExecuteProcess(nil, nil), "ExecuteProcess must return -1")
-	//settings := NewSettings()
-	//settings.NoSandbox = 1
-	// TODO : insert path here 
-	//assert.Equal(t, 1, Initialize(settings, nil), "Initialize")
-	//chrome.Shutdown()
 }
