@@ -9,7 +9,7 @@ import (
 )
 
 func TestMain(m *testing.M) { 
-	// add some flags otherwise test will fail when cef fork it self 
+	// add some flags otherwise test will fail when cef fork itself 
 	flag.String("type", "foo", "-")
 	flag.String("lang", "foo", "-")
 	flag.String("locales-dir-path", "foo", "-")
@@ -30,16 +30,30 @@ func TestMain(m *testing.M) {
 	os.Exit(m.Run()) 
 }
 
-func TestBasic(t *testing.T) {
-	assert.Equal(t, -1, ExecuteProcess(nil, nil), "ExecuteProcess should return -1")
+func TestSetting(t *testing.T){
+	cwd, _ := os.Getwd()
+	settings := NewSettings()
+	assert.Equal(t, 0, settings.NoSandbox)
+	assert.Equal(t, cwd, settings.ResourcesDirPath)
+	assert.Equal(t,  cwd + "/locales", settings.LocalesDirPath)
 }
 
-// TODO : make sure setting actually work 
-
-func TestBase(t *testing.T) {
+func TestBasic(t *testing.T) {
+	cwd, _ := os.Getwd()
+	assert.Equal(t, -1, ExecuteProcess(nil, nil), "ExecuteProcess must return -1")
 	settings := NewSettings()
 	settings.NoSandbox = 1
+	settings.ResourcesDirPath = cwd + "/Release"
+	settings.LocalesDirPath = cwd + "/Release/locales"
+	assert.Equal(t, 1, Initialize(settings, nil), "Initialize must return 1")
+	Shutdown() // the test consider a success if it didn't crash immediately
+}
+
+func TestBase(t *testing.T) {
+	assert.Equal(t, -1, ExecuteProcess(nil, nil), "ExecuteProcess must return -1")
+	//settings := NewSettings()
+	//settings.NoSandbox = 1
 	// TODO : insert path here 
-	assert.Equal(t, 1, Initialize(settings, nil), "Initialize")
+	//assert.Equal(t, 1, Initialize(settings, nil), "Initialize")
 	//chrome.Shutdown()
 }
