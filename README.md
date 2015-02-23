@@ -1,5 +1,4 @@
-##Chrome - Go binding to CEF [![Build Status](https://travis-ci.org/24hours/chrome.svg?branch=master)](https://travis-ci.org/24hours/chrome) [![Coverage Status](https://coveralls.io/repos/24hours/chrome/badge.svg)](https://coveralls.io/r/24hours/chrome)
-
+Chrome - Go binding to CEF [![Build Status](https://travis-ci.org/24hours/chrome.svg?branch=master)](https://travis-ci.org/24hours/chrome) [![Coverage Status](https://coveralls.io/repos/24hours/chrome/badge.svg)](https://coveralls.io/r/24hours/chrome)
 ======
 Table of contents:
  * [Introduction](#introduction)
