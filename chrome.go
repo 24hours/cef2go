@@ -36,6 +36,7 @@ CEF capi fixes
 import "C"
 import "unsafe"
 import (
+	"errors"
 	log "github.com/cihub/seelog"
 	"os"
 )
@@ -67,11 +68,11 @@ func init() {
 }
 
 func DisableLog() {
-    logger = log.Disabled
-    log.ReplaceLogger(logger)
+	logger = log.Disabled
+	log.ReplaceLogger(logger)
 }
 
-func EnableLog(){
+func EnableLog() {
 	logger, _ = log.LoggerFromWriterWithMinLevelAndFormat(os.Stdout, 0, "[%Level] %File:%Line: %Msg %n")
 	log.ReplaceLogger(logger)
 }
@@ -128,10 +129,28 @@ func Initialize(settings Settings, appHandler AppHandler) int {
 	return int(ret)
 }
 
-func CreateBrowser(hwnd WindowInfo,
+func CreateBrowserSync(hwnd WindowInfo,
 	clientHandler ClientHandler,
 	browserSettings BrowserSettings,
-	url string) bool {
+	url string) (*Browser, error) {
+
+	return createBrowser(hwnd, clientHandler, browserSettings, url, true)
+}
+
+func CreateBrowserAsync(hwnd WindowInfo,
+	clientHandler ClientHandler,
+	browserSettings BrowserSettings,
+	url string) error {
+
+	_, err := createBrowser(hwnd, clientHandler, browserSettings, url, false)
+	return err
+}
+
+func createBrowser(hwnd WindowInfo,
+	clientHandler ClientHandler,
+	browserSettings BrowserSettings,
+	url string,
+	async bool) (*Browser, error) {
 
 	// Initialize cef_window_info_t structure.
 	var windowInfo *C.cef_window_info_t
@@ -146,6 +165,10 @@ func CreateBrowser(hwnd WindowInfo,
 	var ch *C.struct__cef_client_t
 	if clientHandler == nil {
 		ch = nil
+		if hwnd.WindowlessRendering == 1 {
+			log.Critical("RenderHandler must be implemented for Windowless Rendering to work")
+			return nil, errors.New("RenderHandler must be implemented for Windowless Rendering to work")
+		}
 	} else {
 		//registering and activating multiple handler
 		if _, ok := clientHandler.(ClientHandler); ok {
@@ -153,7 +176,7 @@ func CreateBrowser(hwnd WindowInfo,
 			clientHandler.SetClientHandlerT(NewClientHandlerT(clientHandler))
 		} else {
 			log.Critical("clientHandler must implement interface ClientHandler")
-			panic("ClientHandler not implemented")
+			return nil, errors.New("ClientHandler not implemented")
 		}
 
 		if lsh, ok := clientHandler.(LifeSpanHandler); ok {
@@ -179,6 +202,11 @@ func CreateBrowser(hwnd WindowInfo,
 		if rn, ok := clientHandler.(RenderHandler); ok {
 			log.Debug("Registering Render handler ")
 			clientHandler.SetRenderHandler(NewRenderHandlerT(rn))
+		} else {
+			if hwnd.WindowlessRendering == 1 {
+				log.Critical("RenderHandler must be implemented for Windowless Rendering to work")
+				return nil, errors.New("RenderHandler must be implemented for Windowless Rendering to work")
+			}
 		}
 
 		ch = clientHandler.GetClientHandlerT().CStruct
@@ -204,7 +232,17 @@ func CreateBrowser(hwnd WindowInfo,
 		nil,
 	)
 
-	return result == C.int(1)
+	if result != C.int(1) {
+		log.Error("C.cef_browser_host_create_browser return :", result)
+		return nil, errors.New("Unknown failure in CEF")
+	}
+
+	if async == false {
+		return nil, nil
+	} else {
+		// TODO : make sure browser is created here
+		return nil, nil
+	}
 }
 
 func RunMessageLoop() {
