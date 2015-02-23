@@ -1,4 +1,4 @@
-Chrome - Go binding to CEF [![Build Status](https://travis-ci.org/24hours/chrome.svg?branch=master)](https://travis-ci.org/24hours/chrome)
+##Chrome - Go binding to CEF [![Build Status](https://travis-ci.org/24hours/chrome.svg?branch=master)](https://travis-ci.org/24hours/chrome)
 [![Coverage Status](https://coveralls.io/repos/24hours/chrome/badge.svg)](https://coveralls.io/r/24hours/chrome)
 
 ======
@@ -68,7 +68,7 @@ Getting started on Mac OS X
 3. Install XCode (gcc that comes with XCode is required).   
    My version is Version 6.1.1  
 
-5. Download CEF 3 Branch 2171 binaries:  
+5. Download CEF 3 Branch 2171 binaries:
    [release_mac.zip](https://github.com/24hours/chrome/releases/download/v0.13/release_mac.zip)   
    Extract the file to `GOPATH/release/*`  
 
