@@ -10,6 +10,7 @@ before_install:
 - "export DISPLAY=:99.0"
 - "sh -e /etc/init.d/xvfb start"
 before_script:
+- sudo apt-get update
 - sudo apt-get install libatk1.0-0 libc6 libasound2 libcairo2 libcap2 libcups2 libexpat1
   libexif12 libfontconfig1 libfreetype6 libglib2.0-0 libgnome-keyring0 libgtk2.0-0
   libpam0g libpango1.0-0 libpci3 libpcre3 libpixman-1-0 libpng12-0 libspeechd2 libstdc++6
