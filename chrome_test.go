@@ -9,6 +9,8 @@ import (
 	"testing"
 )
 
+var cwd, test_dir string
+
 func TestMain(m *testing.M) {
 	// add some flags otherwise test will fail when cef fork itself
 	flag.String("type", "foo", "-")
@@ -28,11 +30,12 @@ func TestMain(m *testing.M) {
 
 	gopath := os.Getenv("GOPATH")
 	os.Chdir(fmt.Sprintf("%s/%s", gopath, "src/github/24hours/chrome/Release"))
+	cwd, _ = os.Getwd()
+	test_dir = "file://" + cwd + "/test"
 	os.Exit(m.Run())
 }
 
 func TestSetting(t *testing.T) {
-	cwd, _ := os.Getwd()
 	settings := NewSettings()
 	assert.Equal(t, 0, settings.NoSandbox)
 	assert.Equal(t, cwd, settings.ResourcesDirPath)
@@ -40,12 +43,16 @@ func TestSetting(t *testing.T) {
 }
 
 func TestBasic(t *testing.T) {
-	cwd, _ := os.Getwd()
 	assert.Equal(t, -1, ExecuteProcess(nil, nil), "ExecuteProcess must return -1")
 	settings := NewSettings()
 	settings.NoSandbox = 1
-	settings.ResourcesDirPath = cwd + "/Release"
-	settings.LocalesDirPath = cwd + "/Release/locales"
+	if runtime.GOOS != "darwin" {
+		settings.ResourcesDirPath = cwd + "/Release"
+		settings.LocalesDirPath = cwd + "/Release/locales"
+	} else {
+		settings.LocalesDirPath = ""
+		settings.ResourcesDirPath = ""
+	}
 	settings.WindowlessRenderingEnabled = 1
 	assert.Equal(t, 1, Initialize(settings, nil), "Initialize must return 1")
 	go RunMessageLoop()
@@ -57,8 +64,6 @@ func TestBasic(t *testing.T) {
 }
 
 func browserBasic(t *testing.T) {
-	cwd, _ := os.Getwd()
-	test_dir := "file://" + cwd + "/test"
 	window := NewWindowInfo(800, 640)
 	window.WindowlessRendering = 1
 	err := CreateBrowserAsync(window, nil, BrowserSettings{}, test_dir+"/index.html")
