@@ -1,0 +1,118 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>Chrome by 24hours</title>
+
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    <script src="javascripts/scale.fix.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="wrapper">
+      <header>
+        <h1 class="header">Chrome</h1>
+        <p class="header">Chrome -  Go binding to CEF</p>
+
+        <ul>
+          <li class="download"><a class="buttons" href="https://github.com/24hours/chrome/zipball/master">Download ZIP</a></li>
+          <li class="download"><a class="buttons" href="https://github.com/24hours/chrome/tarball/master">Download TAR</a></li>
+          <li><a class="buttons github" href="https://github.com/24hours/chrome">View On GitHub</a></li>
+        </ul>
+
+        <p class="header">This project is maintained by <a class="header name" href="https://github.com/24hours">24hours</a></p>
+
+
+      </header>
+      <section>
+        <h1>
+<a id="chrome---go-binding-to-cef--" class="anchor" href="#chrome---go-binding-to-cef--" aria-hidden="true"><span class="octicon octicon-link"></span></a>Chrome - Go binding to CEF <a href="https://travis-ci.org/24hours/chrome"><img src="https://travis-ci.org/24hours/chrome.svg?branch=master" alt="Build Status"></a> <a href="https://coveralls.io/r/24hours/chrome"><img src="https://coveralls.io/repos/24hours/chrome/badge.svg" alt="Coverage Status"></a>
+</h1>
+
+<p>Table of contents:</p>
+
+<ul>
+<li><a href="#introduction">Introduction</a></li>
+<li><a href="#compatibility">Compatibility</a></li>
+<li><a href="#getting-started-on-windows">Getting started on Windows <code>not yet supported</code></a></li>
+<li><a href="#getting-started-on-linux">Getting started on Linux</a></li>
+<li><a href="#getting-started-on-mac-os-x">Getting started on Mac OS X</a></li>
+</ul>
+
+<h2>
+<a id="introduction" class="anchor" href="#introduction" aria-hidden="true"><span class="octicon octicon-link"></span></a>Introduction</h2>
+
+<p>Chrome is a project forked from CEF2go by <a href="http://www.linkedin.com/in/czarektomczak">Czarek Tomczak</a> and <a href="https://github.com/fromkeith">FromKeith</a>. 
+This fork aim to have similar role with <a href="http://phantomjs.org/">PhantomJs</a> </p>
+
+<p>Currently the Chrome only allow simple programming such as opening a browser. </p>
+
+<p>CEF2go is licensed under the BSD 3-clause license, see the LICENSE
+file.</p>
+
+<h2>
+<a id="compatibility" class="anchor" href="#compatibility" aria-hidden="true"><span class="octicon octicon-link"></span></a>Compatibility</h2>
+
+<p>Supported platforms: Windows, Linux, Mac OSX.</p>
+
+<h2>
+<a id="build" class="anchor" href="#build" aria-hidden="true"><span class="octicon octicon-link"></span></a>Build</h2>
+
+<h2>
+<a id="getting-started-on-windows" class="anchor" href="#getting-started-on-windows" aria-hidden="true"><span class="octicon octicon-link"></span></a>Getting started on Windows</h2>
+
+<h2>
+<a id="getting-started-on-linux" class="anchor" href="#getting-started-on-linux" aria-hidden="true"><span class="octicon octicon-link"></span></a>Getting started on Linux</h2>
+
+<ol>
+<li><p>These instructions work fine with Ubuntu 12.04 64-bit. 
+On Ubuntu 13/14 libudev.so.0 is missing and it is required to 
+create a symbolic link to libudev.so.1. For example on 
+Ubuntu 14.04 64-bit run this command: 
+<code>cd /lib/x86_64-linux-gnu/ &amp;&amp; sudo ln -sf libudev.so.1 libudev.so.0</code>.</p></li>
+<li><p>Install CEF dependencies:<br>
+<code>sudo apt-get install libatk1.0-0 libc6 libasound2 libcairo2 libcap2 libcups2 libexpat1
+libexif12 libfontconfig1 libfreetype6 libglib2.0-0 libgnome-keyring0 libgtk2.0-0
+libpam0g libpango1.0-0 libpci3 libpcre3 libpixman-1-0 libpng12-0 libspeechd2 libstdc++6
+libsqlite3-0 libx11-6 libxau6 libxcb1 libxcomposite1 libxcursor1 libxdamage1 libxdmcp6
+libxext6 libxfixes3 libxi6 libxinerama1 libxrandr2 libxrender1 libxtst6 zlib1g
+libpulse0 libbz2-1.0 libnss3-dev libgconf2-dev</code></p></li>
+<li><p>Download CEF 3 Branch 2171 binaries:
+<a href="https://github.com/24hours/chrome/releases/download/v0.13/Release_linux.zip">release_linux.zip</a><br>
+Extract the file to <code>GOPATH/release/*</code>  </p></li>
+<li><p>Copy <code>GOPATH/github.com/24hours/chrome/doc/Makefile</code> to <code>GOPATH/Makefile</code><br>
+Copy <code>GOPATH/github.com/24hours/chrome/doc/minimum/main_linux.go</code> to <code>GOPATH/main_linux.go</code>  </p></li>
+<li><p>Run "make" command.</p></li>
+</ol>
+
+<h2>
+<a id="getting-started-on-mac-os-x" class="anchor" href="#getting-started-on-mac-os-x" aria-hidden="true"><span class="octicon octicon-link"></span></a>Getting started on Mac OS X</h2>
+
+<ol>
+<li><p>These instructions work fine with OS X 10.10 Yosemite.</p></li>
+<li><p>Install command line tools (make is required) from:<br>
+<a href="https://developer.apple.com/downloads/">https://developer.apple.com/downloads/</a><br>
+(In my case command line tools for Mountain Yosemite from 2 Dec 2014)</p></li>
+<li><p>Install XCode (gcc that comes with XCode is required).<br>
+My version is Version 6.1.1  </p></li>
+<li><p>Download CEF 3 Branch 2171 binaries:
+<a href="https://github.com/24hours/chrome/releases/download/v0.13/release_mac.zip">release_mac.zip</a><br>
+Extract the file to <code>GOPATH/release/*</code>  </p></li>
+<li><p>Copy <code>GOPATH/github.com/24hours/chrome/doc/Makefile</code> to <code>GOPATH/Makefile</code><br>
+Copy <code>GOPATH/github.com/24hours/chrome/doc/minimum/main_mac.go</code> to <code>GOPATH/main_mac.go</code>  </p></li>
+<li><p>Run "make" command.</p></li>
+</ol>
+      </section>
+      <footer>
+        <p><small>Hosted on <a href="http://pages.github.com">GitHub Pages</a> using the Dinky theme</small></p>
+      </footer>
+    </div>
+    <!--[if !IE]><script>fixScale(document);</script><![endif]-->
+		
+  </body>
+</html>
