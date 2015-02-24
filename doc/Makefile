@@ -1,23 +1,43 @@
 #!/bin/bash
-.PHONY: detect_os test Linux Darwin clean
+.PHONY: detect_os test Linux Darwin testLinux testMac clean 
 
 export GOPATH=$(PWD)
-UNAME_S = $(shell uname -s)
+UNAME_S=$(shell uname -s)
 
 ifeq ($(UNAME_S), Linux)
 	export CGO_LDFLAGS=-L $(PWD)/Release -lcef
 else #ifeq ($(UNAME_S), Darwin)
 	export CGO_ENABLED=1
-	export CGO_LDFLAGS=-F$(PWD)/Release/tmp -framework Cocoa -framework cef
+	export CGO_LDFLAGS=-F$(PWD)/src/github.com/24hours/chrome/Release/tmp -framework Cocoa -framework cef
 endif
 
 detect_os:
 	make $(UNAME_S)
 
 test:
-	clear
-	cd ./src/github.com/24hours/chrome ; pwd ; export CGO_LDFLAGS="-L `pwd`/Release -lcef" ; go test -o Release/chrome.test -ldflags "-r ./Release" ; cd ../../../../
+	export GOPATH=$(PWD)
+	UNAME_S=$(shell uname -s)
+	make test$(UNAME_S)
 
+testLinux:
+	clear
+	cd ./src/github.com/24hours/chrome ; export CGO_LDFLAGS="-L `pwd`/Release -lcef" ; go test -o Release/chrome.test -ldflags "-r ./Release" ; cd ../../../../
+
+testDarwin:
+	clear
+	@if [ ! -d ./src/github.com/24hours/chrome/Release/tmp ]; then \
+		echo Copying CEF framework directory to Release/tmp ;\
+		mkdir -p ./src/github.com/24hours/chrome/Release/tmp ;\
+		cp -rf ./src/github.com/24hours/chrome/Release/cef2go.app/Contents/Frameworks/Chromium\ Embedded\ Framework.framework ./src/github.com/24hours/chrome/Release/tmp/cef.framework ;\
+		mv ./src/github.com/24hours/chrome/Release/tmp/cef.framework/Chromium\ Embedded\ Framework ./src/github.com/24hours/chrome/Release/tmp/cef.framework/cef ;\
+	fi
+	rm -f ./src/github.com/24hours/chrome/Release/cef2go.app/Contents/MacOS/cef2go
+	go test github.com/24hours/chrome -ldflags "-r ./src/github.com/24hours/chrome" -o ./src/github.com/24hours/chrome/Release/cef2go.app/Contents/MacOS/cef2go -c
+	install_name_tool -change @executable_path/Chromium\ Embedded\ Framework @executable_path/../Frameworks/Chromium\ Embedded\ Framework.framework/Chromium\ Embedded\ Framework src/github.com/24hours/chrome/Release/cef2go.app/Contents/MacOS/cef2go
+	clear
+	echo Begin Test 
+	./src/github.com/24hours/chrome/Release/cef2go.app/Contents/MacOS/cef2go
+	
 Linux:
 	clear
 	go install github.com/24hours/chrome
