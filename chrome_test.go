@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/stretchr/testify/assert"
 	"os"
+	"runtime"
 	"testing"
 )
 
@@ -49,8 +50,10 @@ func TestBasic(t *testing.T) {
 	assert.Equal(t, 1, Initialize(settings, nil), "Initialize must return 1")
 	go RunMessageLoop()
 	browserBasic(t)
-	QuitMessageLoop()
-	Shutdown() // the test consider a success if it didn't crash immediately
+	if runtime.GOOS != "darwin" {
+		QuitMessageLoop()
+		Shutdown() // the test consider a success if it didn't crash immediately
+	}
 }
 
 func browserBasic(t *testing.T) {
