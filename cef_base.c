@@ -8,11 +8,6 @@
 #include <string.h>
 
 ///
-// Structure defining the reference count implementation functions. All
-// framework structures must include the cef_base_t structure first.
-///
-
-///
 // Increment the reference count.
 ///
 void CEF_CALLBACK add_ref(cef_base_t* self) {
@@ -67,7 +62,6 @@ void initialize_cef_base(cef_base_t* base, char *name) {
 //
 // other base/shared items
 //
-
 
 // returns a utf8 encoded string that you need to delete
 cef_string_utf8_t * cefStringToUtf8(const cef_string_t * source) {

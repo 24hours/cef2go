@@ -16,6 +16,7 @@ extern int releaseVoid(void * self);
 import "C"
 import (
 	"errors"
+	"fmt"
 	log "github.com/cihub/seelog"
 	"sync"
 	"unsafe"
@@ -124,6 +125,7 @@ func CreateRef(it unsafe.Pointer, name string) {
 	}
 }
 
+// TODO : This seems to be useless
 func RegisterDestructor(it unsafe.Pointer, decon func(it unsafe.Pointer)) bool {
 	refCountLock.Lock()
 	defer refCountLock.Unlock()
@@ -137,12 +139,12 @@ func RegisterDestructor(it unsafe.Pointer, decon func(it unsafe.Pointer)) bool {
 }
 
 func DumpRefs() {
-	log.Info("Dumping reference : ")
+	fmt.Println("Dumping reference : ")
 	refCountLock.Lock()
 	defer refCountLock.Unlock()
 
 	for k, v := range memoryBridge {
-		log.Info("%X : %#v", k, v)
+		fmt.Println("%X : %#v", k, v)
 	}
 }
 

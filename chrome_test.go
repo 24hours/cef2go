@@ -49,9 +49,11 @@ func TestBasic(t *testing.T) {
 	if runtime.GOOS != "darwin" {
 		settings.ResourcesDirPath = cwd + "/Release"
 		settings.LocalesDirPath = cwd + "/Release/locales"
+		settings.WindowlessRenderingEnabled = 1
 	} else {
 		settings.LocalesDirPath = ""
 		settings.ResourcesDirPath = ""
+		settings.WindowlessRenderingEnabled = 1
 	}
 	settings.WindowlessRenderingEnabled = 1
 	assert.Equal(t, 1, Initialize(settings, nil), "Initialize must return 1")
@@ -71,6 +73,9 @@ func browserBasic(t *testing.T) {
 
 	err = CreateBrowserAsync(window, &testClientHandler{}, BrowserSettings{}, test_dir+"/index.html")
 	assert.Nil(t, err, "Creation must success with Render Handler")
+	// browser, err := CreateBrowserSync(window, &testClientHandler{}, BrowserSettings{}, test_dir+"/index.html")
+	// assert.Nil(t, err, "Sync Creation must success with Render Handler")
+
 }
 
 type testClientHandler struct {

@@ -203,35 +203,48 @@ func createBrowser(hwnd WindowInfo,
 		go_AddRef(unsafe.Pointer(ch))
 	}
 
-	// Do not create the browser synchronously using the
-	// cef_browser_host_create_browser_sync() function, as
-	// it is unreliable. Instead obtain browser object in
-	// life_span_handler::on_after_created. In that callback
-	// keep CEF browser objects in a global map (cef window
-	// handle -> cef browser) and introduce
-	// a GetBrowserByWindowHandle() function. This function
-	// will first guess the CEF window handle using for example
-	// WinAPI functions and then search the global map of cef
-	// browser objects.
-
-	result := C.cef_browser_host_create_browser(
-		windowInfo,
-		ch,
-		cefUrl,
-		browserSettings.toC(),
-		nil,
-	)
-
-	if result != C.int(1) {
-		log.Error("C.cef_browser_host_create_browser return :", result)
-		return nil, errors.New("Unknown failure in CEF")
-	}
-
 	if async == false {
-		return nil, nil
+		result := C.cef_browser_host_create_browser(
+			windowInfo,
+			ch,
+			cefUrl,
+			browserSettings.toC(),
+			nil,
+		)
+
+		if result != C.int(1) {
+			log.Error("C.cef_browser_host_create_browser return :", result)
+			return nil, errors.New("Unknown failure in CEF")
+		} else {
+			return nil, nil
+		}
 	} else {
-		// TODO : make sure browser is created here
-		return nil, nil
+		// Do not create the browser synchronously using the
+		// cef_browser_host_create_browser_sync() function, as
+		// it is unreliable. Instead obtain browser object in
+		// life_span_handler::on_after_created. In that callback
+		// keep CEF browser objects in a global map (cef window
+		// handle -> cef browser) and introduce
+		// a GetBrowserByWindowHandle() function. This function
+		// will first guess the CEF window handle using for example
+		// WinAPI functions and then search the global map of cef
+		// browser objects.
+
+		// browser := &Browser{}
+		// browser.CStruct = C.cef_browser_host_create_browser_sync(
+		// 	windowInfo,
+		// 	ch,
+		// 	cefUrl,
+		// 	browserSettings.toC(),
+		// 	nil,
+		// )
+		// if browser.CStruct != nil {
+		// 	log.Error("C.cef_browser_host_create_browser_sync fail to return browser pointer")
+		// 	return nil, errors.New("Unknown failure in CEF")
+		// } else {
+		// 	return browser, nil
+		// }
+		return nil, errors.New("create browser sync will fail no matter what")
 	}
 }
 
