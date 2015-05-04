@@ -36,7 +36,6 @@ CEF capi fixes
 import "C"
 import "unsafe"
 import (
-	"errors"
 	log "github.com/cihub/seelog"
 	"os"
 )
@@ -65,6 +64,16 @@ type WindowInfo struct {
 
 func init() {
 	DisableLog()
+}
+
+func DisableLog() {
+    logger = log.Disabled
+    log.ReplaceLogger(logger)
+}
+
+func EnableLog(){
+	logger, _ = log.LoggerFromWriterWithMinLevelAndFormat(os.Stdout, 0, "[%Level] %File:%Line: %Msg %n")
+	log.ReplaceLogger(logger)
 }
 
 func NewWindowInfo(height, width int) WindowInfo {
@@ -119,28 +128,10 @@ func Initialize(settings Settings, appHandler AppHandler) int {
 	return int(ret)
 }
 
-func CreateBrowserSync(hwnd WindowInfo,
+func CreateBrowser(hwnd WindowInfo,
 	clientHandler ClientHandler,
 	browserSettings BrowserSettings,
-	url string) (*Browser, error) {
-
-	return createBrowser(hwnd, clientHandler, browserSettings, url, true)
-}
-
-func CreateBrowserAsync(hwnd WindowInfo,
-	clientHandler ClientHandler,
-	browserSettings BrowserSettings,
-	url string) error {
-
-	_, err := createBrowser(hwnd, clientHandler, browserSettings, url, false)
-	return err
-}
-
-func createBrowser(hwnd WindowInfo,
-	clientHandler ClientHandler,
-	browserSettings BrowserSettings,
-	url string,
-	async bool) (*Browser, error) {
+	url string) bool {
 
 	// Initialize cef_window_info_t structure.
 	var windowInfo *C.cef_window_info_t
@@ -155,10 +146,6 @@ func createBrowser(hwnd WindowInfo,
 	var ch *C.struct__cef_client_t
 	if clientHandler == nil {
 		ch = nil
-		if hwnd.WindowlessRendering == 1 {
-			log.Critical("RenderHandler must be implemented for Windowless Rendering to work")
-			return nil, errors.New("RenderHandler must be implemented for Windowless Rendering to work")
-		}
 	} else {
 		//registering and activating multiple handler
 		if _, ok := clientHandler.(ClientHandler); ok {
@@ -166,7 +153,7 @@ func createBrowser(hwnd WindowInfo,
 			clientHandler.SetClientHandlerT(NewClientHandlerT(clientHandler))
 		} else {
 			log.Critical("clientHandler must implement interface ClientHandler")
-			return nil, errors.New("ClientHandler not implemented")
+			panic("ClientHandler not implemented")
 		}
 
 		if lsh, ok := clientHandler.(LifeSpanHandler); ok {
@@ -192,60 +179,32 @@ func createBrowser(hwnd WindowInfo,
 		if rn, ok := clientHandler.(RenderHandler); ok {
 			log.Debug("Registering Render handler ")
 			clientHandler.SetRenderHandler(NewRenderHandlerT(rn))
-		} else {
-			if hwnd.WindowlessRendering == 1 {
-				log.Critical("RenderHandler must be implemented for Windowless Rendering to work")
-				return nil, errors.New("RenderHandler must be implemented for Windowless Rendering to work")
-			}
 		}
 
 		ch = clientHandler.GetClientHandlerT().CStruct
 		go_AddRef(unsafe.Pointer(ch))
 	}
 
-	if async == false {
-		result := C.cef_browser_host_create_browser(
-			windowInfo,
-			ch,
-			cefUrl,
-			browserSettings.toC(),
-			nil,
-		)
+	// Do not create the browser synchronously using the
+	// cef_browser_host_create_browser_sync() function, as
+	// it is unreliable. Instead obtain browser object in
+	// life_span_handler::on_after_created. In that callback
+	// keep CEF browser objects in a global map (cef window
+	// handle -> cef browser) and introduce
+	// a GetBrowserByWindowHandle() function. This function
+	// will first guess the CEF window handle using for example
+	// WinAPI functions and then search the global map of cef
+	// browser objects.
 
-		if result != C.int(1) {
-			log.Error("C.cef_browser_host_create_browser return :", result)
-			return nil, errors.New("Unknown failure in CEF")
-		} else {
-			return nil, nil
-		}
-	} else {
-		// Do not create the browser synchronously using the
-		// cef_browser_host_create_browser_sync() function, as
-		// it is unreliable. Instead obtain browser object in
-		// life_span_handler::on_after_created. In that callback
-		// keep CEF browser objects in a global map (cef window
-		// handle -> cef browser) and introduce
-		// a GetBrowserByWindowHandle() function. This function
-		// will first guess the CEF window handle using for example
-		// WinAPI functions and then search the global map of cef
-		// browser objects.
+	result := C.cef_browser_host_create_browser(
+		windowInfo,
+		ch,
+		cefUrl,
+		browserSettings.toC(),
+		nil,
+	)
 
-		// browser := &Browser{}
-		// browser.CStruct = C.cef_browser_host_create_browser_sync(
-		// 	windowInfo,
-		// 	ch,
-		// 	cefUrl,
-		// 	browserSettings.toC(),
-		// 	nil,
-		// )
-		// if browser.CStruct != nil {
-		// 	log.Error("C.cef_browser_host_create_browser_sync fail to return browser pointer")
-		// 	return nil, errors.New("Unknown failure in CEF")
-		// } else {
-		// 	return browser, nil
-		// }
-		return nil, errors.New("create browser sync will fail no matter what")
-	}
+	return result == C.int(1)
 }
 
 func RunMessageLoop() {

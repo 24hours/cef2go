@@ -1,8 +1,8 @@
 #!/bin/bash
-.PHONY: detect_os test Linux Darwin testLinux testMac clean 
+.PHONY: detect_os test Linux Darwin clean
 
 export GOPATH=$(PWD)
-UNAME_S=$(shell uname -s)
+UNAME_S = $(shell uname -s)
 
 ifeq ($(UNAME_S), Linux)
 	export CGO_LDFLAGS=-L $(PWD)/Release -lcef
@@ -15,30 +15,9 @@ detect_os:
 	make $(UNAME_S)
 
 test:
-	export GOPATH=$(PWD)
-	UNAME_S=$(shell uname -s)
-	make test$(UNAME_S)
+	clear
+	cd ./src/github.com/24hours/chrome ; pwd ; export CGO_LDFLAGS="-L `pwd`/Release -lcef" ; go test -o Release/chrome.test -ldflags "-r ./Release" ; cd ../../../../
 
-testLinux:
-	clear
-	cd ./src/github.com/24hours/chrome ; export CGO_LDFLAGS="-L `pwd`/Release -lcef" ; go test -o Release/chrome.test -ldflags "-r ./Release" ; cd ../../../../
-
-testDarwin:
-	clear
-	export CGO_LDFLAGS="-F$(PWD)/src/github.com/24hours/chrome/Release/tmp -framework Cocoa -framework cef"
-	@if [ ! -d ./src/github.com/24hours/chrome/Release/tmp ]; then \
-		echo Copying CEF framework directory to Release/tmp ;\
-		mkdir -p ./src/github.com/24hours/chrome/Release/tmp ;\
-		cp -rf ./src/github.com/24hours/chrome/Release/cef2go.app/Contents/Frameworks/Chromium\ Embedded\ Framework.framework ./src/github.com/24hours/chrome/Release/tmp/cef.framework ;\
-		mv ./src/github.com/24hours/chrome/Release/tmp/cef.framework/Chromium\ Embedded\ Framework ./src/github.com/24hours/chrome/Release/tmp/cef.framework/cef ;\
-	fi
-	rm -f ./src/github.com/24hours/chrome/Release/cef2go.app/Contents/MacOS/cef2go
-	go test github.com/24hours/chrome -ldflags "-r ./src/github.com/24hours/chrome" -o ./src/github.com/24hours/chrome/Release/cef2go.app/Contents/MacOS/cef2go -c
-	install_name_tool -change @executable_path/Chromium\ Embedded\ Framework @executable_path/../Frameworks/Chromium\ Embedded\ Framework.framework/Chromium\ Embedded\ Framework src/github.com/24hours/chrome/Release/cef2go.app/Contents/MacOS/cef2go
-	clear
-	echo Begin Test 
-	./src/github.com/24hours/chrome/Release/cef2go.app/Contents/MacOS/cef2go
-	
 Linux:
 	clear
 	go install github.com/24hours/chrome
@@ -56,10 +35,14 @@ Darwin:
 		cp -rf Release/cef2go.app/Contents/Frameworks/Chromium\ Embedded\ Framework.framework Release/tmp/cef.framework ;\
 		mv Release/tmp/cef.framework/Chromium\ Embedded\ Framework Release/tmp/cef.framework/cef ;\
 	fi
+	@# CEF requires specific app bundle / directory structure
+	@# on OSX, but Go doesn't allow for such thing when 
+	@# running test. So turning off test.
+	@# go test -ldflags "-r $(PWD)/Release" src/tests/cef_test.go
 	rm -f Release/cef2go.app/Contents/MacOS/cef2go
 	go build -ldflags "-r ." -o Release/cef2go.app/Contents/MacOS/cef2go main_darwin.go
 	install_name_tool -change @executable_path/Chromium\ Embedded\ Framework @executable_path/../Frameworks/Chromium\ Embedded\ Framework.framework/Chromium\ Embedded\ Framework Release/cef2go.app/Contents/MacOS/cef2go
-
+	
 clean:
 	clear
 	go clean -i cef
