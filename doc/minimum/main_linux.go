@@ -7,7 +7,7 @@ package main
 import (
 	"fmt"
 	"github.com/24hours/chrome"
-	"github.com/24hours/chrome/gtk"
+	"github.com/24hours/chrome/ui"
 	"os"
 )
 
@@ -18,8 +18,8 @@ func main() {
 	setting.SingleProcess = 0
 	chrome.Initialize(setting, nil)
 	fmt.Println("create")
-	window := gtk.CreateWindow("chrome example", 1024, 768)
-	gtk.ConnectDestroySignal(window, OnDestroyWindow)
+	window := ui.CreateWindow("chrome example", 1024, 768)
+	ui.ConnectDestroySignal(window, OnDestroyWindow)
 
 	fmt.Println("create browser")
 	// Create browser.

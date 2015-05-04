@@ -7,7 +7,7 @@ package main
 import (
 	"fmt"
 	"github.com/24hours/chrome"
-	"github.com/24hours/chrome/cocoa"
+	"github.com/24hours/chrome/ui"
 	"os"
 )
 
@@ -21,9 +21,9 @@ func main() {
 	chrome.Initialize(settings, nil)
 
 	// Create Window using Cocoa API.
-	window := cocoa.CreateWindow("chrome example", 1024, 768)
-	cocoa.ConnectDestroySignal(window, OnDestroyWindow)
-	cocoa.ActivateApp()
+	window := ui.CreateWindow("chrome example", 1024, 768)
+	ui.ConnectDestroySignal(window, OnDestroyWindow)
+	ui.ActivateApp()
 
 	ch := NewMyClientHandler()
 	chrome.CreateBrowser(window, ch, chrome.BrowserSettings{}, "http://www.google.com")

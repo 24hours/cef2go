@@ -70,6 +70,8 @@ func CreateWindow(title string, width int, height int) chrome.WindowInfo {
 	defer C.free(unsafe.Pointer(csTitle))
 	window := chrome.WindowInfo{}
 	window.Ptr = C.CreateWindow(csTitle, C.int(width), C.int(height))
+	window.Height = height
+	window.Width = width
 	return window
 }
 
