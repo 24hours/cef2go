@@ -24,7 +24,7 @@ func main() {
 	cocoa.ConnectDestroySignal(window, OnDestroyWindow)
 	cocoa.ActivateApp()
 
-	chrome.CreateBrowser(window, nil, chrome.BrowserSettings{}, "http://www.google.com")
+	chrome.CreateBrowserAsync(window, nil, chrome.BrowserSettings{}, "http://www.google.com")
 	// CEF loop and shutdown.
 	chrome.RunMessageLoop()
 	//chrome.Shutdown()

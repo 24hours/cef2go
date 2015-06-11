@@ -23,7 +23,7 @@ func main() {
 
 	fmt.Println("create browser")
 	// Create browser.
-	chrome.CreateBrowser(window, nil, chrome.BrowserSettings{}, "http://www.google.com")
+	chrome.CreateBrowserAsync(window, nil, chrome.BrowserSettings{}, "http://www.google.com")
 
 	// CEF loop and shutdown.
 	chrome.RunMessageLoop()
