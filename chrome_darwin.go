@@ -22,6 +22,7 @@ import "C"
 import "unsafe"
 
 import (
+	"fmt"
 	log "github.com/cihub/seelog"
 	"os"
 )
@@ -47,19 +48,17 @@ func FillWindowInfo(windowInfo *C.cef_window_info_t, hwnd WindowInfo) {
 	// defer C.free(unsafe.Pointer(windowName))
 	// C.cef_string_from_utf8(windowName, C.strlen(windowName),
 	//        &windowInfo.window_name)
-	// TODO : what happen with this ?
-	// if hwnd.Ptr != nil {
-	var bounds C.NSRect = C.GetWindowBounds(hwnd.Ptr)
-
-	windowInfo.x = C.int(bounds.origin.x)
-	windowInfo.y = C.int(bounds.origin.y)
-	windowInfo.width = C.int(bounds.size.width)
-	windowInfo.height = C.int(bounds.size.height)
-	// parent
-	windowInfo.parent_view = hwnd.Ptr
-	// }
-	// windowInfo.windowless_rendering_enabled = C.int(hwnd.WindowlessRendering)
-	// windowInfo.height = C.int(hwnd.Height)
-	// windowInfo.width = C.int(hwnd.Width)
-
+	if hwnd.Ptr != nil {
+		var bounds C.NSRect = C.GetWindowBounds(hwnd.Ptr)
+		windowInfo.x = C.int(bounds.origin.x)
+		windowInfo.y = C.int(bounds.origin.y)
+		windowInfo.width = C.int(bounds.size.width)
+		windowInfo.height = C.int(bounds.size.height)
+		// parent
+		windowInfo.parent_view = hwnd.Ptr
+	} else {
+		windowInfo.height = C.int(hwnd.Height)
+		windowInfo.width = C.int(hwnd.Width)
+	}
+	windowInfo.windowless_rendering_enabled = C.int(hwnd.WindowlessRendering)
 }
