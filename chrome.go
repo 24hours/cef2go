@@ -4,8 +4,8 @@
 
 //TODO : figure out why crash on shutdown()
 // 	     Shutdown() already calld in UI thread,
-// 		 but it complain regardless, maybe a bug in CEF
-//		 leave it untill next release come out
+// 			 but it complain regardless, maybe a bug in CEF
+//			 leave it untill next release come out
 package chrome
 
 /*
@@ -30,8 +30,6 @@ CEF capi fixes
 #include "include/capi/cef_app_capi.h"
 #include "include/capi/cef_client_capi.h"
 #include "cef_base.h"
-#include "cef_app.h"
-#include "cef_client.h"
 */
 import "C"
 import "unsafe"
@@ -75,13 +73,15 @@ func NewWindowInfo(height, width int) WindowInfo {
 	return ret
 }
 
-func ExecuteProcess(programHandle unsafe.Pointer, appHandler AppHandler) int {
+// TODO : Add this line back
+//func ExecuteProcess(programHandle unsafe.Pointer, appHandler AppHandler) int {
+func ExecuteProcess(programHandle unsafe.Pointer, appHandler interface{}) int {
 	var appHandlerT *C.cef_app_t
 	if appHandler == nil {
 		appHandlerT = nil
 	} else {
-		appHandlerT = appHandler.GetAppHandlerT().CStruct
-		go_AddRef(unsafe.Pointer(appHandlerT))
+		// appHandlerT = appHandler.GetAppHandlerT().CStruct
+		// go_AddRef(unsafe.Pointer(appHandlerT))
 	}
 
 	_MainArgs = (*C.struct__cef_main_args_t)(C.calloc(1, C.sizeof_struct__cef_main_args_t))
@@ -98,7 +98,9 @@ func ExecuteProcess(programHandle unsafe.Pointer, appHandler AppHandler) int {
 	return int(exitCode)
 }
 
-func Initialize(settings Settings, appHandler AppHandler) int {
+// TODO : add this back
+// func Initialize(settings Settings, appHandler AppHandler) int {
+func Initialize(settings Settings, appHandler interface{}) int {
 	if execute_called == false {
 		// If cef_initialize called before  cef_execute_process
 		// then it would result in creation of infinite number of
@@ -112,23 +114,33 @@ func Initialize(settings Settings, appHandler AppHandler) int {
 	if appHandler == nil {
 		appHandlerT = nil
 	} else {
-		appHandlerT = appHandler.GetAppHandlerT().CStruct
-		go_AddRef(unsafe.Pointer(appHandlerT))
+		// appHandlerT = appHandler.GetAppHandlerT().CStruct
 	}
 	ret := C.cef_initialize(_MainArgs, settings.toC(), appHandlerT, _SandboxInfo)
 	return int(ret)
 }
 
+// TODO : add this back
+// func CreateBrowserSync(hwnd WindowInfo,
+// 	clientHandler ClientHandler,
+// 	browserSettings BrowserSettings,
+// 	url string) (*Browser, error) {
+
 func CreateBrowserSync(hwnd WindowInfo,
-	clientHandler ClientHandler,
+	clientHandler interface{},
 	browserSettings BrowserSettings,
-	url string) (*Browser, error) {
+	url string) (*interface{}, error) {
 
 	return createBrowser(hwnd, clientHandler, browserSettings, url, true)
 }
 
+// TODO : add this back
+// func CreateBrowserAsync(hwnd WindowInfo,
+// 	clientHandler ClientHandler,
+// 	browserSettings BrowserSettings,
+// 	url string) error {
 func CreateBrowserAsync(hwnd WindowInfo,
-	clientHandler ClientHandler,
+	clientHandler interface{},
 	browserSettings BrowserSettings,
 	url string) error {
 
@@ -136,11 +148,18 @@ func CreateBrowserAsync(hwnd WindowInfo,
 	return err
 }
 
+// TODO : add this back
+// func createBrowser(hwnd WindowInfo,
+// 	clientHandler ClientHandler,
+// 	browserSettings BrowserSettings,
+// 	url string,
+// async bool) (*Browser, error) {
+
 func createBrowser(hwnd WindowInfo,
-	clientHandler ClientHandler,
+	clientHandler interface{},
 	browserSettings BrowserSettings,
 	url string,
-	async bool) (*Browser, error) {
+	async bool) (*interface{}, error) {
 
 	// Initialize cef_window_info_t structure.
 	var windowInfo *C.cef_window_info_t
@@ -153,55 +172,55 @@ func createBrowser(hwnd WindowInfo,
 	toCefStringCopy(url, cefUrl)
 
 	var ch *C.struct__cef_client_t
-	if clientHandler == nil {
-		ch = nil
-		if hwnd.WindowlessRendering == 1 {
-			log.Critical("RenderHandler must be implemented for Windowless Rendering to work")
-			return nil, errors.New("RenderHandler must be implemented for Windowless Rendering to work")
-		}
-	} else {
-		//registering and activating multiple handler
-		if _, ok := clientHandler.(ClientHandler); ok {
-			log.Debug("Registering Client hanlder")
-			clientHandler.SetClientHandlerT(NewClientHandlerT(clientHandler))
-		} else {
-			log.Critical("clientHandler must implement interface ClientHandler")
-			return nil, errors.New("ClientHandler not implemented")
-		}
+	// if clientHandler == nil {
+	// 	ch = nil
+	// 	if hwnd.WindowlessRendering == 1 {
+	// 		log.Critical("RenderHandler must be implemented for Windowless Rendering to work")
+	// 		return nil, errors.New("RenderHandler must be implemented for Windowless Rendering to work")
+	// 	}
+	// } else {
+	// 	//registering and activating multiple handler
+	// 	if _, ok := clientHandler.(ClientHandler); ok {
+	// 		log.Debug("Registering Client hanlder")
+	// 		clientHandler.SetClientHandlerT(NewClientHandlerT(clientHandler))
+	// 	} else {
+	// 		log.Critical("clientHandler must implement interface ClientHandler")
+	// 		return nil, errors.New("ClientHandler not implemented")
+	// 	}
 
-		if lsh, ok := clientHandler.(LifeSpanHandler); ok {
-			log.Debug("Registering Life Span handler ")
-			clientHandler.SetLifeSpanHandler(NewLifeSpanHandlerT(lsh))
-		}
+	// 	if lsh, ok := clientHandler.(LifeSpanHandler); ok {
+	// 		log.Debug("Registering Life Span handler ")
+	// 		clientHandler.SetLifeSpanHandler(NewLifeSpanHandlerT(lsh))
+	// 	}
 
-		if rqh, ok := clientHandler.(RequestHandler); ok {
-			log.Debug("Registering Request handler ")
-			clientHandler.SetRequestHandler(NewRequestHandlerT(rqh))
-		}
+	// 	if rqh, ok := clientHandler.(RequestHandler); ok {
+	// 		log.Debug("Registering Request handler ")
+	// 		clientHandler.SetRequestHandler(NewRequestHandlerT(rqh))
+	// 	}
 
-		if dsp, ok := clientHandler.(DisplayHandler); ok {
-			log.Debug("Registering Display handler ")
-			clientHandler.SetDisplayHandler(NewDisplayHandlerT(dsp))
-		}
+	// 	if dsp, ok := clientHandler.(DisplayHandler); ok {
+	// 		log.Debug("Registering Display handler ")
+	// 		clientHandler.SetDisplayHandler(NewDisplayHandlerT(dsp))
+	// 	}
 
-		if dl, ok := clientHandler.(DownloadHandler); ok {
-			log.Debug("Registering Download handler ")
-			clientHandler.SetDownloadHandler(NewDownloadHandlerT(dl))
-		}
+	// 	if dl, ok := clientHandler.(DownloadHandler); ok {
+	// 		log.Debug("Registering Download handler ")
+	// 		clientHandler.SetDownloadHandler(NewDownloadHandlerT(dl))
+	// 	}
 
-		if rn, ok := clientHandler.(RenderHandler); ok {
-			log.Debug("Registering Render handler ")
-			clientHandler.SetRenderHandler(NewRenderHandlerT(rn))
-		} else {
-			if hwnd.WindowlessRendering == 1 {
-				log.Critical("RenderHandler must be implemented for Windowless Rendering to work")
-				return nil, errors.New("RenderHandler must be implemented for Windowless Rendering to work")
-			}
-		}
+	// 	if rn, ok := clientHandler.(RenderHandler); ok {
+	// 		log.Debug("Registering Render handler ")
+	// 		clientHandler.SetRenderHandler(NewRenderHandlerT(rn))
+	// 	} else {
+	// 		if hwnd.WindowlessRendering == 1 {
+	// 			log.Critical("RenderHandler must be implemented for Windowless Rendering to work")
+	// 			return nil, errors.New("RenderHandler must be implemented for Windowless Rendering to work")
+	// 		}
+	// 	}
 
-		ch = clientHandler.GetClientHandlerT().CStruct
-		go_AddRef(unsafe.Pointer(ch))
-	}
+	// 	ch = clientHandler.GetClientHandlerT().CStruct
+	// 	go_AddRef(unsafe.Pointer(ch))
+	// }
 
 	if async == false {
 		result := C.cef_browser_host_create_browser(
@@ -263,36 +282,4 @@ func Shutdown() {
 	C.free(unsafe.Pointer(_MainArgs))
 	C.cef_shutdown()
 	// OFF: cef_sandbox_info_destroy(_SandboxInfo)
-}
-
-func extractCefMultiMap(cefMapPointer C.cef_string_multimap_t) map[string][]string {
-	numKeys := C.cef_string_multimap_size(cefMapPointer)
-	goMap := make(map[string][]string)
-	for i := 0; i < int(numKeys); i++ {
-		var key *C.cef_string_utf16_t = C.cef_string_userfree_utf16_alloc()
-		C.cef_string_multimap_key(cefMapPointer, C.int(i), C.cefString16CastToCefString(key))
-		charKeyUtf8 := C.cefStringToUtf8(C.cefString16CastToCefString(key))
-		goKey := C.GoString(charKeyUtf8.str)
-		if _, ok := goMap[goKey]; ok {
-			continue
-		}
-		numValsForKey := C.cef_string_multimap_find_count(cefMapPointer, C.cefString16CastToCefString(key))
-
-		if numValsForKey >= 0 {
-			goVals := make([]string, numValsForKey)
-			for k := 0; k < int(numValsForKey); k++ {
-				var val *C.cef_string_utf16_t = C.cef_string_userfree_utf16_alloc()
-				C.cef_string_multimap_enumerate(cefMapPointer,
-					C.cefString16CastToCefString(key), C.int(k), C.cefString16CastToCefString(val))
-				charValUtf8 := C.cefStringToUtf8(C.cefString16CastToCefString(val))
-				goVals[k] = C.GoString(charValUtf8.str)
-				C.cef_string_userfree_utf8_free(charValUtf8)
-				C.cef_string_userfree_utf16_free(val)
-			}
-			goMap[goKey] = goVals
-		}
-		C.cef_string_userfree_utf8_free(charKeyUtf8)
-		C.cef_string_userfree_utf16_free(key)
-	}
-	return goMap
 }
