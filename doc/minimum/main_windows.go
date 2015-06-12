@@ -1,68 +1,47 @@
-// Copyright (c) 2014 The cef2go authors. All rights reserved.
-// License: BSD 3-clause.
-// Website: https://github.com/CzarekTomczak/cef2go
-
 package main
 
 import (
-	"cef"
-	"log"
+	"github.com/24hours/chrome"
+	"github.com/24hours/chrome/ui"
 	"os"
-	"syscall"
-	"time"
-	"unsafe"
-	"wingui"
+    "syscall"
+    "unsafe"
 )
 
-var Logger *log.Logger = log.New(os.Stdout, "[main] ", log.Lshortfile)
-
 func main() {
-	hInstance, e := wingui.GetModuleHandle(nil)
-	if e != nil {
-		wingui.AbortErrNo("GetModuleHandle", e)
-	}
+//   hInstance, e := wingui.GetModuleHandle(nil)
+//    if e != nil { wingui.AbortErrNo("GetModuleHandle", e) }
+    
+//    cef.ExecuteProcess(unsafe.Pointer(hInstance), nil)
+    chrome.ExecuteProcess(nil, nil)
+	
+    settings := chrome.Settings{}
+    settings.LocalesDirPath = ""
+	settings.ResourcesDirPath = ""
+	chrome.Initialize(settings, nil)
+    
+    wndproc := syscall.NewCallback(WndProc)
+    hwnd := ui.CreateWindow("cef2go example", wndproc)
 
-	cef.ExecuteProcess(unsafe.Pointer(hInstance))
+    chrome.CreateBrowserAsync(hwnd, nil, chrome.BrowserSettings{}, "http://www.google.com")
 
-	settings := cef.Settings{}
-	settings.CachePath = "webcache"                // Set to empty to disable
-	settings.LogSeverity = cef.LOGSEVERITY_DEFAULT // LOGSEVERITY_VERBOSE
-	cef.Initialize(settings)
-
-	wndproc := syscall.NewCallback(WndProc)
-	Logger.Println("CreateWindow")
-	hwnd := wingui.CreateWindowAsync("cef2go example", wndproc)
-
-	browserSettings := cef.BrowserSettings{}
-	// TODO: It should be executable's directory used
-	// rather than working directory.
-	url, _ := os.Getwd()
-	url = "file://" + url + "/example.html"
-	cef.CreateBrowser(unsafe.Pointer(hwnd), browserSettings, url)
-
-	// It should be enough to call WindowResized after 10ms,
-	// though to be sure let's extend it to 100ms.
-	time.AfterFunc(time.Millisecond*100, func() {
-		cef.WindowResized(unsafe.Pointer(hwnd))
-	})
-
-	cef.RunMessageLoop()
-	cef.Shutdown()
-	os.Exit(0)
+    chrome.RunMessageLoop()
+    //cef.Shutdown()
+    os.Exit(0)
 }
 
 func WndProc(hwnd syscall.Handle, msg uint32, wparam, lparam uintptr) (rc uintptr) {
-	switch msg {
-	case wingui.WM_CREATE:
-		rc = wingui.DefWindowProc(hwnd, msg, wparam, lparam)
-	case wingui.WM_SIZE:
-		cef.WindowResized(unsafe.Pointer(hwnd))
-	case wingui.WM_CLOSE:
-		wingui.DestroyWindow(hwnd)
-	case wingui.WM_DESTROY:
-		cef.QuitMessageLoop()
-	default:
-		rc = wingui.DefWindowProc(hwnd, msg, wparam, lparam)
-	}
-	return
+    switch msg {
+    case ui.WM_CREATE:
+        rc = ui.DefWindowProc(hwnd, msg, wparam, lparam)
+    case ui.WM_SIZE:
+        chrome.WindowResized(unsafe.Pointer(hwnd))
+    case ui.WM_CLOSE:
+        ui.DestroyWindow(hwnd)
+    case ui.WM_DESTROY:
+        chrome.QuitMessageLoop()
+    default:
+        rc = ui.DefWindowProc(hwnd, msg, wparam, lparam)
+    }
+    return
 }
