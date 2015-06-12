@@ -4,13 +4,14 @@
 
 // +build windows
 
-package wingui
+package ui
 
 import (
     "fmt"
     "os"
     "syscall"
     "unsafe"
+    "github.com/24hours/chrome"
 )
 
 // some help functions
@@ -32,7 +33,7 @@ var (
     bh syscall.Handle
 )
 
-func CreateWindow(title string, wndproc uintptr) (hwnd syscall.Handle) {
+func CreateWindow(title string, wndproc uintptr) chrome.WindowInfo {
     var e error
 
     // GetModuleHandle
@@ -90,33 +91,8 @@ func CreateWindow(title string, wndproc uintptr) (hwnd syscall.Handle) {
         AbortErrNo("UpdateWindow", e)
     }
 
-    hwnd = wh
+    ret := chrome.WindowInfo{}
+    ret.Handle = wh
 
-    return
-
-    /*
-    // Process all windows messages until WM_QUIT.
-    var m Msg
-    for {
-        r, e := GetMessage(&m, 0, 0, 0)
-        if e != nil {
-            AbortErrNo("GetMessage", e)
-        }
-        if r == 0 {
-            // WM_QUIT received -> get out
-            break
-        }
-        TranslateMessage(&m)
-        DispatchMessage(&m)
-    }
-    return int(m.Wparam)
-    */
+    return ret
 }
-
-
-/*
-func main() {
-    rc := rungui()
-    os.Exit(rc)
-}
-*/

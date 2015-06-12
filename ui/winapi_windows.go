@@ -4,7 +4,7 @@
 
 // +build windows
 
-package wingui
+package ui
 
 import (
     "syscall"

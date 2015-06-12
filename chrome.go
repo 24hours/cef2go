@@ -37,6 +37,7 @@ import (
 	"errors"
 	log "github.com/cihub/seelog"
 	"os"
+	"syscall"
 )
 
 var logger log.LoggerInterface
@@ -55,7 +56,7 @@ var _SandboxInfo unsafe.Pointer
 
 type WindowInfo struct {
 	Ptr                 unsafe.Pointer
-	Hdl                 uint64
+	Handle              syscall.Handle
 	WindowlessRendering int
 	Height              int
 	Width               int
