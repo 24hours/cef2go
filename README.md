@@ -38,14 +38,7 @@ Getting started on Linux
   `cd /lib/x86_64-linux-gnu/ && sudo ln -sf libudev.so.1 libudev.so.0`.
 
 2. Install CEF dependencies:  
-   ```
-   sudo apt-get install libatk1.0-0 libc6 libasound2 libcairo2 libcap2 libcups2 libexpat1
-  libexif12 libfontconfig1 libfreetype6 libglib2.0-0 libgnome-keyring0 libgtk2.0-0
-  libpam0g libpango1.0-0 libpci3 libpcre3 libpixman-1-0 libpng12-0 libspeechd2 libstdc++6
-  libsqlite3-0 libx11-6 libxau6 libxcb1 libxcomposite1 libxcursor1 libxdamage1 libxdmcp6
-  libxext6 libxfixes3 libxi6 libxinerama1 libxrandr2 libxrender1 libxtst6 zlib1g libgtk2.0-dev
-  libpulse0 libbz2-1.0 libnss3-dev libgconf2-dev
-  ```
+`sudo apt-get install libatk1.0-0 libc6 libasound2 libcairo2 libcap2 libcups2 libexpat1 libexif12 libfontconfig1 libfreetype6 libglib2.0-0 libgnome-keyring0 libgtk2.0-0 libpam0g libpango1.0-0 libpci3 libpcre3 libpixman-1-0 libpng12-0 libspeechd2 libstdc++6 libsqlite3-0 libx11-6 libxau6 libxcb1 libxcomposite1 libxcursor1 libxdamage1 libxdmcp6 libxext6 libxfixes3 libxi6 libxinerama1 libxrandr2 libxrender1 libxtst6 zlib1g libgtk2.0-dev libpulse0 libbz2-1.0 libnss3-dev libgconf2-dev`
 
 3. Download CEF 3 Branch 2171 binaries:
    [release_linux.zip](https://github.com/24hours/chrome/releases/download/v0.13/Release_linux.zip)  
