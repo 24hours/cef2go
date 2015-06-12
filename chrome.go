@@ -6,6 +6,7 @@
 // 	     Shutdown() already calld in UI thread,
 // 			 but it complain regardless, maybe a bug in CEF
 //			 leave it untill next release come out
+//     : dragging will cause CEF to crash
 package chrome
 
 /*
@@ -37,7 +38,6 @@ import (
 	"errors"
 	log "github.com/cihub/seelog"
 	"os"
-	"syscall"
 )
 
 var logger log.LoggerInterface
@@ -53,14 +53,6 @@ var _MainArgs *C.struct__cef_main_args_t
 // void* cef_sandbox_info_create();
 // void cef_sandbox_info_destroy(void* sandbox_info);
 var _SandboxInfo unsafe.Pointer
-
-type WindowInfo struct {
-	Ptr                 unsafe.Pointer
-	Handle              syscall.Handle
-	WindowlessRendering int
-	Height              int
-	Width               int
-}
 
 func init() {
 	DisableLog()

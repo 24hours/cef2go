@@ -28,6 +28,13 @@ import (
 
 var _Argv []*C.char = make([]*C.char, len(os.Args))
 
+type WindowInfo struct {
+	Ptr                 unsafe.Pointer
+	WindowlessRendering int
+	Height              int
+	Width               int
+}
+
 func FillMainArgs(mainArgs *C.struct__cef_main_args_t, appHandle unsafe.Pointer) {
 	// On Mac appHandle is nil.
 	log.Debug("FillMainArgs, ", os.Args)

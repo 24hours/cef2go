@@ -12,11 +12,21 @@ package chrome
 #include "include/capi/cef_app_capi.h"
 */
 import "C"
-import "unsafe"
+import (
+	"syscall"
+	"unsafe"
+)
 
 func FillMainArgs(mainArgs *C.struct__cef_main_args_t,
 	appHandle unsafe.Pointer) {
 	mainArgs.instance = (C.HINSTANCE)(appHandle)
+}
+
+type WindowInfo struct {
+	Handle              syscall.Handle
+	WindowlessRendering int
+	Height              int
+	Width               int
 }
 
 func FillWindowInfo(windowInfo *C.cef_window_info_t, hwnd WindowInfo) {
