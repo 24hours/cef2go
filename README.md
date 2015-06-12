@@ -49,10 +49,12 @@ Getting started on Linux
    [release_linux.zip](https://github.com/24hours/chrome/releases/download/v0.13/Release_linux.zip)  
    Extract the file to `GOPATH/release/*`  
 
-4. Copy `GOPATH/github.com/24hours/chrome/doc/Makefile` to `GOPATH/Makefile`  
+4. run `sudo chmod root:root $GOPATH/Release/chrome-sandbox && sudo chmod 47555 $GOPATH/Release/chrome-sandbox`
+
+5. Copy `GOPATH/github.com/24hours/chrome/doc/Makefile` to `GOPATH/Makefile`  
    Copy `GOPATH/github.com/24hours/chrome/doc/minimum/main_linux.go` to `GOPATH/main_linux.go`  
    
-5. Run "make" command.
+6. Run "make" command.
 
 
 Getting started on Mac OS X
