@@ -22,7 +22,6 @@ import "C"
 import "unsafe"
 
 import (
-	"fmt"
 	log "github.com/cihub/seelog"
 	"os"
 )
