@@ -3,7 +3,7 @@ Chrome - Go binding to CEF [![Build Status](https://travis-ci.org/24hours/chrome
 Table of contents:
  * [Introduction](#introduction)
  * [Compatibility](#compatibility)
- * [Getting started on Windows `not yet supported`](#getting-started-on-windows)
+ * [Getting started on Windows](#getting-started-on-windows)
  * [Getting started on Linux](#getting-started-on-linux)
  * [Getting started on Mac OS X](#getting-started-on-mac-os-x)
 
@@ -27,7 +27,18 @@ Build
 ------------
 Getting started on Windows
 --------------------------
+1. The instruction should work in Windows 8.1 64bit
 
+2. Install [TDM-GCC](http://tdm-gcc.tdragon.net/) for `cgo`.
+
+3. Download CEF3 Branch 2171 binaries:
+  [release_windows.zip]()
+  Extract the file to `GOPATH/Release/*
+
+4. Copy `GOPATH/github.com/24hours/chrome/doc/build.bat` to `GOPATH/build.bat`  
+   Copy `GOPATH/github.com/24hours/chrome/doc/minimum/main_linux.go` to `GOPATH/main_windows.go`  
+
+5. Run `build.bat` command.
 
 Getting started on Linux
 ------------------------
@@ -47,7 +58,7 @@ Getting started on Linux
 4. Copy `GOPATH/github.com/24hours/chrome/doc/Makefile` to `GOPATH/Makefile`  
    Copy `GOPATH/github.com/24hours/chrome/doc/minimum/main_linux.go` to `GOPATH/main_linux.go`  
    
-5. Run "make" command.
+5. Run `make` command.
 
 
 Getting started on Mac OS X
@@ -68,4 +79,4 @@ Getting started on Mac OS X
 6. Copy `GOPATH/github.com/24hours/chrome/doc/Makefile` to `GOPATH/Makefile`  
    Copy `GOPATH/github.com/24hours/chrome/doc/minimum/main_mac.go` to `GOPATH/main_mac.go`  
    
-7. Run "make" command.
+7. Run `make` command.
