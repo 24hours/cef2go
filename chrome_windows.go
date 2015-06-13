@@ -5,8 +5,7 @@
 package chrome
 
 /*
-#cgo CFLAGS: -IC:/Users/u24/Desktop/Go/src/github.com/24hours/chrome/
-#cgo LDFLAGS: -LC:/Users/u24/Desktop/Go/Release -llibcef
+#cgo LDFLAGS: -llibcef
 #include <stdlib.h>
 #include <string.h>
 #include "include/capi/cef_app_capi.h"
