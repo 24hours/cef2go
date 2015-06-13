@@ -17,7 +17,7 @@ cef_string_utf16_t * cefStringCastToCefString16(cef_string_t * source);
 void CEF_CALLBACK add_ref(cef_base_t* self);
 int CEF_CALLBACK release(cef_base_t* self);
 
-void initialize_cef_base(cef_base_t* base, char *name);
+void initialize_cef_base(cef_base_t* base);
 void add_refVoid(void* self);
 int releaseVoid(void* self);
 

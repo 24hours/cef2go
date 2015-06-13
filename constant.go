@@ -192,8 +192,6 @@ func (b BrowserSettings) toC() *C.struct__cef_browser_settings_t {
 		C.calloc(1, C.sizeof_struct__cef_browser_settings_t))
 	cefBrowserSettings.size = C.sizeof_struct__cef_browser_settings_t
 
-	go_AddRef(unsafe.Pointer(cefBrowserSettings))
-
 	if b.StandardFontFamily != "" {
 		toCefStringCopy(b.StandardFontFamily, &cefBrowserSettings.standard_font_family)
 	}

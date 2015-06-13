@@ -6,12 +6,19 @@
 #include "_cgo_export.h"
 #include "cef_base.h"
 #include <string.h>
+#include "bridge.h"
 
 ///
 // Increment the reference count.
 ///
 void CEF_CALLBACK add_ref(cef_base_t* self) {
-    go_AddRef((void *) self);
+    if(self == NULL){
+        return;
+    }
+    acquire_lock();
+    struct MemoryManagedBridge *s = find_handler((void*)self);
+    s->count = s->count + 1;
+    release_lock();
 }
 
 ///
@@ -19,36 +26,44 @@ void CEF_CALLBACK add_ref(cef_base_t* self) {
 // remain.
 ///
 int CEF_CALLBACK release(cef_base_t* self) {
-    return go_Release((void *) self);
+    // there should a lock here 
+    if(self == NULL){
+        return 1;
+    }
+    acquire_lock();
+    struct MemoryManagedBridge *s = find_handler((void*)self);
+    s->count = s->count - 1;
+    if(s->count == 0){
+        if(s->Deconstructor != NULL){
+            s->Deconstructor((void*)self);
+        }
+        delete_handler((void*) self);
+        return 1;
+    } else {
+        replace_handler((void*) self, s);
+    }
+    release_lock();
+    return 0; 
 }
 
 ///
 // Returns the current number of references.
 ///
 int CEF_CALLBACK has_one_ref(cef_base_t* self) {
-    return go_HasOneReferenceCount((void *) self);
+  struct MemoryManagedBridge *s = find_handler((void*)self);
+  if(s->count == 1){
+    return 1;
+  } else {
+    return 0;
+  }
 }
 
-void add_refVoid(void* self) {
-    if (self == NULL) {
-        return;
-    }
-    ((cef_base_t*) self)->add_ref((cef_base_t*) self);
-}
-int releaseVoid(void* self) {
-    if (self == NULL) {
-        return 1;
-    }
-    return ((cef_base_t*) self)->release((cef_base_t*) self);
-}
-
-void initialize_cef_base(cef_base_t* base, char *name) {
+void initialize_cef_base(cef_base_t* base) {
     // Check if "size" member was set.
     size_t size = base->size;
     // Let's print the size in case sizeof was used
     // on a pointer instead of a structure. In such
     // case the number will be very high.
-    //goDebugLog("cef_base_t.size = %lu\n", (unsigned long)size);
     if (size <= 0) {
         _exit(1);
     }
@@ -56,7 +71,7 @@ void initialize_cef_base(cef_base_t* base, char *name) {
     base->release = release;
     base->has_one_ref = has_one_ref;
 
-    go_CreateRef((void *) base, name);
+    create_handler((void*) base);
 }
 
 //
