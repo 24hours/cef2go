@@ -32,7 +32,7 @@ Getting started on Windows
 2. Install [TDM-GCC](http://tdm-gcc.tdragon.net/) for `cgo`.
 
 3. Download CEF3 Branch 2171 binaries:
-  [release_windows.zip]()
+  [release_windows.zip](https://github.com/24hours/chrome/releases/download/v0.13/Release_windows.zip)
   Extract the file to `GOPATH/Release/*
 
 4. Copy `GOPATH/github.com/24hours/chrome/doc/build.bat` to `GOPATH/build.bat`  
