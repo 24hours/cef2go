@@ -1,2 +1,6 @@
 pkg/
 Release/*
+
+*.pyc
+*.db
+dump.js
