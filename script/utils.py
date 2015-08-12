@@ -194,19 +194,14 @@ def DumpGoFunctions(struct, func_struct, file_d, handled_type=None):
     DumpGoGetterFunctions(struct, func_struct, file_d, handled_type=handled_type)
 
 def DumpGoCallBackFunction(struct, func_struct, file_d, handled_type=None):
-  # //export go_OnBeforeCommandLineProcessing
-  # func go_OnBeforeCommandLineProcessing (self *C.cef_app_t){
-  #   if handler, ok := knownApp[unsafe.Pointer(self)]; ok {
-  #    return handler.OnBeforeCommandLineProcessing(parameters [TODO])
-  #   }
-  #   return nil
-  # }
-
   file_d.write("//export %s%s\n" % (golang_prefix, func_struct.GoName))
 
   param_string = []
   for p in func_struct.Params:
-    param_string.append(p.name + ' *C.' + p.TypeStruct.CgoName)
+    if not p.pointer:
+      param_string.append(p.name + ' C.' + p.TypeStruct.CgoName)
+    else: 
+      param_string.append(p.name + ' *C.' + p.TypeStruct.CgoName)
 
   file_d.write("func %s%s (%s) %s {\n" % 
       ( golang_prefix, func_struct.GoName, 
@@ -216,7 +211,7 @@ def DumpGoCallBackFunction(struct, func_struct, file_d, handled_type=None):
   # TODO : preprocess before calling 
   for param in func_struct.Params[1:]:
     file_d.write("\t\t//processing %s %s \n" % (param.TypeStruct.name, param.name))
-  # call method
+
   if func_struct.TypeStruct.name == 'void':
     file_d.write("\thandler.%s(%s)\n" % 
         ( func_struct.GoName, 
@@ -232,18 +227,6 @@ def DumpGoCallBackFunction(struct, func_struct, file_d, handled_type=None):
   file_d.write("//Generate by %s \n\n" % inspect.stack()[0][3])
 
 def DumpGoGetterFunctions(struct, func_struct, file_d, handled_type=None):
-
-  # //export go_GetResourceBundleHandler
-  # func go_GetResourceBundleHandler (self *C.cef_app_t) *C.struct___cef_app_t{
-  #   if handler, ok := knownApp[unsafe.Pointer(self)]; ok {
-  #     ret := handler.GetResourceBundleHandler()
-  #     if ret != nil{
-  #       return ret.GetResourceBundleHandler().CStruct
-  #     }
-  #   }
-  #   return nil
-  # }
-
   cstruct_name = "CStruct"
 
   file_d.write("//export %s%s\n" % (golang_prefix, func_struct.GoName))

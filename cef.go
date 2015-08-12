@@ -2,7 +2,7 @@
 package chrome 
 
 /*
-#cgo CFLAGS: -I./
+#cgo CFLAGS: -Wno-incompatible-pointer-types-discards-qualifiers -I./
 #include <stdlib.h>
 #include "cef_base.h"
 #include "cef.h" 
@@ -294,7 +294,7 @@ func go_GetRequestHandler (self *C.cef_client_t) *C.struct__cef_request_handler_
 //Generate by DumpGoGetterFunctions 
 
 //export go_OnProcessMessageReceived
-func go_OnProcessMessageReceived (self *C.struct__cef_client_t, browser *C.struct__cef_browser_t, source_process *C.cef_process_id_t, message *C.struct__cef_process_message_t) int {
+func go_OnProcessMessageReceived (self *C.struct__cef_client_t, browser *C.struct__cef_browser_t, source_process C.cef_process_id_t, message *C.struct__cef_process_message_t) int {
 	if handler, ok := ClientMap[unsafe.Pointer(self)]; ok {
 		//processing _cef_browser_t browser 
 		//processing cef_process_id_t source_process 
