@@ -1,0 +1,28 @@
+ Golang                             Cef(C)  
++----------+                   +-----------+
+| entries  |                   | entries   |
+|          +-----------------> |           |
+|  of      |                   |  of       |
+|          | <-----------------+           |
+| Go Struct|                   | C Struct  |
++--+---+---+                   +--+------+-+
+   |   ^                          |      ^  
+   v   |                          v      |  
+ +-+---+--+                    +--+------+-+
+ | Main.go|                    |Cef Runtime|
+ +--------+                    +-----------+
+
+
+Basic flow of Go-Chrome 
+1. Main.go executed
+2. GoStruct is created 
+ - create CStruct
+ - register all the call back to CStruct 
+ - CStruct is registered automatically into memory in C
+-- Execution untill some event occured 
+3. CEF called some event in CStruct. 
+ - CStruct search for GoStruct entries and call it. 
+-- Main.go try to call something in CEF
+5. Method in struct is called
+ - Go search for entries in C struct and call it. 
+
