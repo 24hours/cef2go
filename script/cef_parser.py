@@ -18,6 +18,7 @@ GoToC = {
                     } 
 }
 
+
 conn = sqlite3.connect(db_name)
 c = conn.cursor()
 
@@ -145,6 +146,16 @@ class CefStructHandler(CefStruct):
   @property
   def CGoGeneric(self):
     return "unsafe.pointer"
+
+  @property
+  def Purpose(self):
+    handler_provider = ['_cef_app_t', '_cef_client_t']
+    if self in handler_provider:
+      return Struct.HANDLER_PROVIDER
+    elif 'handler' in self.name:
+      return Struct.HANDLER
+    else:
+      return Struct.CEF_TYPE
 
 class CefParam(CefStruct):
   def __init__(self, hash_id):
@@ -401,13 +412,17 @@ if __name__ == '__main__':
   # any struct referenced by "cef_app_t" will get parser.
   app_id = getIdbyName('cef_app_t', db_name)
   client_id = getIdbyName('cef_client_t', db_name)
+  life_id = getIdbyName('cef_life_span_handler_t', db_name)
+
 
   app = CefStructHandler(app_id)
   client = CefStructHandler(client_id)
+  life = CefStructHandler(life_id)
 
   with open(opts.c_file, "a") as f:
     DumpC(app, file_d = f, handled_type = ['_cef_app_t', '_cef_client_t'])
     DumpC(client, file_d = f,  handled_type = ['_cef_app_t', '_cef_client_t'])
+    #DumpC(browser, file_d = f,  handled_type = ['_cef_app_t', '_cef_client_t'])
     
   with open(opts.go_file, "a") as f:
     DumpGo(app, file_d = f,  handled_type = ['_cef_app_t', '_cef_client_t'])

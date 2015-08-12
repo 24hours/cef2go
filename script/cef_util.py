@@ -4,8 +4,9 @@ import sqlite3, re
 Config.set_library_path('/Library/Developer/CommandLineTools/usr/lib')
 
 class Struct(Enum):
-  API = 0
-  TYPE = 1
+  HANDLER_PROVIDER = 0
+  HANDLER = 1
+  CEF_TYPE = 2
 
 class Function(Enum):
   CALLBACK_EVENT = 0
@@ -62,8 +63,8 @@ def dump_node(node, parent):
            'referenced' : node.referenced.hash if node.referenced is not None else 0,
            'children' : children }
 
-def getStructName(struct_name, type=Struct.API):
-  if type is Struct.API:
+def getStructName(struct_name, type=Struct.HANDLER_PROVIDER):
+  if type is Struct.HANDLER_PROVIDER:
     name = struct_name.split("_")
     return '_'.join(name[1:-1])
   else:
