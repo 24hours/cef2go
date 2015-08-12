@@ -91,6 +91,21 @@ cef_string_utf8_t * cefStringToUtf8(const cef_string_t * source) {
 cef_string_t * cefString16CastToCefString(cef_string_utf16_t * source) {
     return (cef_string_t *) source;
 }
+
 cef_string_utf16_t * cefStringCastToCefString16(cef_string_t * source) {
     return (cef_string_utf16_t *) source;
 }
+
+// 
+char * cefStringtoChar( cef_string_t * source){
+    cef_string_utf8_t * output = cefStringToUtf8(source);
+    char *ret;
+    for( int i = 0 ; i < output->length ; i++){
+        ret[i] = output->str[i];
+    }
+    ret[output->length] = '\0';
+    cef_string_userfree_utf8_free(output);
+    return ret;
+}
+
+

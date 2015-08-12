@@ -13,6 +13,7 @@
 cef_string_utf8_t * cefStringToUtf8(const cef_string_t * source);
 cef_string_t * 	cefString16CastToCefString(cef_string_utf16_t * source);
 cef_string_utf16_t * cefStringCastToCefString16(cef_string_t * source);
+char * cefStringtoChar( cef_string_t * source);
 
 void CEF_CALLBACK add_ref(cef_base_t* self);
 int CEF_CALLBACK release(cef_base_t* self);

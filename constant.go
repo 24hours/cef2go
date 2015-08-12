@@ -3,6 +3,7 @@ package chrome
 //#include <string.h>
 //#include <stdlib.h>
 //#include "include/capi/cef_app_capi.h"
+//#include "include/internal/cef_string.h"
 //#include "cef_base.h"
 import "C"
 import (
@@ -133,6 +134,66 @@ func NewSettings() Settings {
 		constructed_by_NewSetting:   true,
 	}
 }
+
+// func SettingsFromC(cefSettings *C.struct__cef_settings_t) Settings {
+// 	ret := NewSettings()
+
+// 	ret.SingleProcess = int(cef.Settings)
+// 	ret.NoSandbox = int(cef.no_sandbox)
+
+// 	if s.BrowserSubprocessPath != "" {
+// 		toCefStringCopy(s.BrowserSubprocessPath, &cefSettings.browser_subprocess_path)
+// 	}
+
+// 	cefSettings.multi_threaded_message_loop = C.int(s.MultiThreadedMessageLoop)
+// 	cefSettings.windowless_rendering_enabled = C.int(s.WindowlessRenderingEnabled)
+// 	cefSettings.command_line_args_disabled = C.int(s.CommandLineArgsDisabled)
+
+// 	if s.CachePath != "" {
+// 		toCefStringCopy(s.CachePath, &cefSettings.cache_path)
+// 	}
+
+// 	cefSettings.persist_session_cookies = C.int(s.PersistSessionCookies)
+
+// 	if s.UserAgent != "" {
+// 		toCefStringCopy(s.UserAgent, &cefSettings.user_agent)
+// 	}
+
+// 	if s.ProductVersion != "" {
+// 		toCefStringCopy(s.ProductVersion, &cefSettings.product_version)
+// 	}
+
+// 	if s.Locale != "" {
+// 		toCefStringCopy(s.Locale, &cefSettings.locale)
+// 	}
+
+// 	if s.LogFile != "" {
+// 		toCefStringCopy(s.LogFile, &cefSettings.log_file)
+// 	}
+
+// 	cefSettings.log_severity = C.cef_log_severity_t(s.LogSeverity)
+
+// 	if s.JavascriptFlags != "" {
+// 		toCefStringCopy(s.JavascriptFlags, &cefSettings.javascript_flags)
+// 	}
+
+// 	if s.ResourcesDirPath != "" {
+// 		toCefStringCopy(s.ResourcesDirPath, &cefSettings.resources_dir_path)
+// 	}
+
+// 	if s.LocalesDirPath != "" {
+// 		toCefStringCopy(s.LocalesDirPath, &cefSettings.locales_dir_path)
+// 	}
+
+// 	cefSettings.pack_loading_disabled = C.int(s.PackLoadingDisabled)
+// 	cefSettings.remote_debugging_port = C.int(s.RemoteDebuggingPort)
+// 	cefSettings.uncaught_exception_stack_size = C.int(s.UncaughtExceptionStackSize)
+// 	cefSettings.context_safety_implementation = C.int(s.ContextSafetyImplementation)
+// 	cefSettings.ignore_certificate_errors = C.int(s.IgnoreCertificateErrors)
+// 	cefSettings.pack_loading_disabled = C.int(s.PackLoadingDisabled)
+// 	cefSettings.background_color = C.cef_color_t(s.BackgroundColor)
+
+// }
 
 type CefState int
 
@@ -299,4 +360,9 @@ func toCefStringCopy(s string, out *C.cef_string_t) {
 	var asC *C.char = C.CString(s)
 	defer C.free(unsafe.Pointer(asC))
 	C.cef_string_from_utf8(asC, C.strlen(asC), C.cefStringCastToCefString16(out))
+}
+
+func fromCefStringCopy(src *C.cef_string_t) string {
+	ret := C.GoString(C.cefStringtoChar(src))
+	return ret
 }
