@@ -33,7 +33,9 @@ def prepare_file(file_c=None, file_go=None, file_h=None, h_path=None):
     f.write('%s \n' % ('package chrome') )
     f.write('\n')
     f.write('/*\n')
-    f.write('#cgo CFLAGS: -I./\n')
+    # golang don't accept const parameter, there is no work around over this. 
+    # turn off this warning message to keep the screen clean. 
+    f.write('#cgo CFLAGS: -Wno-incompatible-pointer-types-discards-qualifiers -I./\n')
     f.write('#include <stdlib.h>\n')
     f.write('#include "cef_base.h"\n')
     f.write('#include "%s" \n' % file_h)
