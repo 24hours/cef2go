@@ -119,9 +119,9 @@ class CefStructHandler(CefStruct):
       raise Exception('CefStructHandler failed to handle Enumeration')
 
     super(CefStructHandler, self).__init__(hash_id)
-
+    
   def __repr__(self):
-    return 'CefStructHandler <%s>' % self.name
+    return 'CefStructHandler <%s>' % ( self.name )
 
   @property
   def GoName(self):
@@ -157,6 +157,15 @@ class CefStructHandler(CefStruct):
     else:
       return Struct.CEF_TYPE
 
+  def CToGoConversion(self, target, ret):
+    if self.Purpose is Struct.HANDLER_PROVIDER or self.Purpose is Struct.HANDLER: 
+      return """ 
+      {ret}, ok := {self.GoName}Map[unsafe.Pointer({target})]; 
+      if ok == false {{
+        panic("{target} is not found in Map")
+      }}
+      """.format(**locals())
+
 class CefParam(CefStruct):
   def __init__(self, hash_id):
     self.hash = hash_id
@@ -179,11 +188,11 @@ class CefParam(CefStruct):
       self.type_id = hash_id
       self.type = param[4]
       self.const = True if re.search('const', param[4]) is not None else False
-      self.pointer = ''
+      self.pointer = '*' if '*' in param[4] else ''
       self.native = True # native ctype
 
   def __repr__(self):
-    return "CefParam <<%r> %s>" % (self.TypeStruct, self.name)
+    return "CefParam <<%r> %s %s>" % (self.TypeStruct, self.name, self.pointer)
 
   @property
   def isPointer(self):
@@ -223,7 +232,7 @@ class CefFunction(object):
       # raise Exception(api[0], api[3], 'is not function pointer')
   
   def __repr__(self):
-    return 'CefFunction < %r %s >' % (self.TypeStruct, self.name)
+    return 'CefFunction < %r %s>' % (self.TypeStruct, self.name)
 
   @property
   def TypeStruct(self):
@@ -257,8 +266,15 @@ class CefFunction(object):
 
 class CType(object):
   def __init__(self, name):
+    known_type = ['int *', 'int', 'void']
+    if name not in known_type:
+      raise Exception("Unknown type (%s)" % name)
     self.name = name.strip()
     self.instance = 'ctype'
+    if '*' in name:
+      self.pointer = '*'
+    else:
+      self.pointer = ''
 
   def __hash__(self):
     return hash(self.name)
@@ -270,7 +286,7 @@ class CType(object):
       return self.name == other.name
 
   def __repr__(self):
-    return 'CType < %s >' % self.name
+    return 'CType <%s>' % (self.name)
 
   @property
   def GoName(self):
@@ -285,8 +301,30 @@ class CType(object):
       return 'return 1;'
     return ''
 
-  def typeHandling(self):
-    raise Exception('Not Implemented')
+  def CToGoConversion(self, target, ret):
+    if self.name == 'int *':
+      return "{ret} := int(*{target})\n".format(**locals())
+
+    return "//%r" % self
+
+
+  @property
+  def GoGeneric(self):
+    if self.name == 'int *':
+      return "*int"
+    else:
+      return self.name
+
+  @property
+  def CgoName(self):
+    if self.name == 'int *':
+      return 'int'
+    else:
+      return self.name
+
+  # @property 
+  # def GoGenericVal(self):
+  #   return 
 
 class CefType(CType, CefStruct):
   def __init__(self, hash_id):
@@ -323,6 +361,10 @@ class CefEnum(CType, CefStruct):
     return self.name
 
 def DumpGo(struct, file_d=None, handled_type = None):
+  for api in struct.Functions:
+    utils.DumpGoFunctions(struct, api, file_d, handled_type=handled_type)
+
+def DumpGoDefinition(struct, file_d=None, handled_type = None):
   file_d = file_d or sys.stdout
 
   # Perhaps this belong to CGO 
@@ -332,11 +374,7 @@ def DumpGo(struct, file_d=None, handled_type = None):
     utils.DumpGoEnum(struct, file_d)
   elif isinstance(struct, CefStructHandler):
     utils.DumpGoInterface(struct, file_d, handled_type=handled_type)
-
-  for api in struct.Functions:
-    utils.DumpGoFunctions(struct, api, file_d, handled_type=handled_type)
-
-    
+  
 def DumpC(struct, file_d=None, handled_type = None):
   file_d = file_d or sys.stdout
 
@@ -410,28 +448,6 @@ if __name__ == '__main__':
 
   # starting from entry point : cef_app_t 
   # any struct referenced by "cef_app_t" will get parser.
-  app_id = getIdbyName('cef_app_t', db_name)
-  client_id = getIdbyName('cef_client_t', db_name)
-  life_id = getIdbyName('cef_life_span_handler_t', db_name)
-
-
-  app = CefStructHandler(app_id)
-  client = CefStructHandler(client_id)
-  life = CefStructHandler(life_id)
-
-  with open(opts.c_file, "a") as f:
-    DumpC(app, file_d = f, handled_type = ['_cef_app_t', '_cef_client_t'])
-    DumpC(client, file_d = f,  handled_type = ['_cef_app_t', '_cef_client_t'])
-    #DumpC(browser, file_d = f,  handled_type = ['_cef_app_t', '_cef_client_t'])
-    
-  with open(opts.go_file, "a") as f:
-    DumpGo(app, file_d = f,  handled_type = ['_cef_app_t', '_cef_client_t'])
-    DumpGo(client, file_d = f,  handled_type = ['_cef_app_t', '_cef_client_t'])
-
-  with open(opts.h_path + opts.h_file, 'a') as f:
-    DumpHeader(app, file_d = f,  handled_type = ['_cef_app_t', '_cef_client_t'])
-    DumpHeader(client, file_d = f,  handled_type = ['_cef_app_t', '_cef_client_t'])
-
   # # collect all public struct that should be parsed 
   # struct_list = recursive_search(app)
   # struct_list.union(recursive_search(client))
@@ -442,4 +458,22 @@ if __name__ == '__main__':
   #     pass
   #   elif p == '_cef_app_t':
   #     DumpGo(p)
+
+  handle_type = ['_cef_app_t', '_cef_client_t', '_cef_life_span_handler_t']
+
+  for st_name in ['cef_app_t', 'cef_client_t', 'cef_life_span_handler_t']:
+    st_id = getIdbyName(st_name, db_name)
+    st = CefStructHandler(st_id)
+
+    with open(opts.c_file, "a") as f:
+      DumpC(st, file_d = f, handled_type = handle_type)
+     
+    with open(opts.go_file, "a") as f:
+      DumpGoDefinition(st, file_d = f,  handled_type = handle_type)
+      DumpGo(st, file_d = f,  handled_type = handle_type)
+
+    with open(opts.h_path + opts.h_file, 'a') as f:
+      DumpHeader(st, file_d = f,  handled_type = handle_type)
+
+
 

@@ -71,10 +71,15 @@ def DumpGoInterface(struct, file_d, handled_type=None):
   
   for api in struct.Functions:
     handling = api.TypeStruct in handled_type or api.TypeStruct.instance == 'ctype'
+    if api.TypeStruct.instance is not 'ctype' and api.TypeStruct.GoName is not '':
+      GoName = api.TypeStruct.GoName+'T'
+    else:
+      GoName = api.TypeStruct.GoName
+    
     file_d.write('\t %s(%s) %s \n' % 
         ( api.GoName, 
           constructGoParamString([ param for param in api.Params if param.name not in ['self'] ], handled_type=handled_type), 
-          api.TypeStruct.GoName if handling else api.TypeStruct.GoGeneric))
+          GoName if handling else api.TypeStruct.GoGeneric))
   file_d.write("}\n")
   file_d.write("//Generate by %s \n\n" % inspect.stack()[0][3])
 
@@ -154,7 +159,7 @@ def DumpFunctionAsAPI(func_struct, file_d, handled_type=None):
 
   file_d.write('%s CEF_CALLBACK %s %s (%s){\n' % 
       ( func_struct.TypeStruct.name,
-        '' if func_struct.pointer is False else '*', 
+        '' if func_struct.pointer is None else '*', 
         func_struct.name, 
         constructParamString(func_struct.Params) ))
   # TODO : include this line back 
@@ -177,6 +182,7 @@ def DumpFunctionAsHandler(func_struct, file_d, handled_type=None):
       func_struct.name, 
       constructParamString(func_struct.Params) ))
   file_d.write("")
+
   file_d.write("\treturn %s%s(%s);\n" % 
       ( golang_prefix, 
         func_struct.GoName, 
@@ -188,7 +194,7 @@ def DumpFunctionAsHandler(func_struct, file_d, handled_type=None):
   file_d.write("//Generate by %s \n\n" % inspect.stack()[0][3])
 
 def DumpGoFunctions(struct, func_struct, file_d, handled_type=None):
-  if func_struct.Purpose is Function.CALLBACK_EVENT: #or func_struct.Purpose is Function.STRUCT_METHOD:  
+  if func_struct.Purpose is Function.CALLBACK_EVENT or func_struct.Purpose is Function.STRUCT_METHOD:  
     DumpGoCallBackFunction(struct, func_struct, file_d, handled_type=handled_type)
   else:
     DumpGoGetterFunctions(struct, func_struct, file_d, handled_type=handled_type)
@@ -198,28 +204,35 @@ def DumpGoCallBackFunction(struct, func_struct, file_d, handled_type=None):
 
   param_string = []
   for p in func_struct.Params:
-    if not p.pointer:
-      param_string.append(p.name + ' C.' + p.TypeStruct.CgoName)
-    else: 
-      param_string.append(p.name + ' *C.' + p.TypeStruct.CgoName)
+    param_string.append(p.name + ' ' +  p.pointer + 'C.' + p.TypeStruct.CgoName)
 
   file_d.write("func %s%s (%s) %s {\n" % 
       ( golang_prefix, func_struct.GoName, 
         ', '.join(param_string), 
         func_struct.TypeStruct.GoName))
   file_d.write("\tif handler, ok := %sMap[unsafe.Pointer(%s)]; ok {\n" % (struct.GoName, func_struct.Params[0].name))
-  # TODO : preprocess before calling 
+  
+  param_name_list = []
   for param in func_struct.Params[1:]:
-    file_d.write("\t\t//processing %s %s \n" % (param.TypeStruct.name, param.name))
+    if param.TypeStruct in handled_type or param.TypeStruct.instance == 'ctype':
+      file_d.write("\t %s" % (param.TypeStruct.CToGoConversion(param.name, "go_"+param.name)))
+      if param.TypeStruct.instance == 'ctype' and param.TypeStruct.pointer == '*':
+        param_name_list.append("&go_"+param.name)
+      else:
+        param_name_list.append("go_"+param.name)
+    else:
+      file_d.write("\t\t//processing %r %s \n" % (param.TypeStruct, param.name))
+      param_name_list.append(param.name)
 
   if func_struct.TypeStruct.name == 'void':
-    file_d.write("\thandler.%s(%s)\n" % 
-        ( func_struct.GoName, 
-          ','.join([ param.name for param in func_struct.Params if param.name not in ['self'] ]) ))    
+    return_flag = ""
   else:
-    file_d.write("\t return handler.%s(%s)\n" % 
-        ( func_struct.GoName, 
-          ','.join([ param.name for param in func_struct.Params if param.name not in ['self'] ]) ))
+    return_flag = "return"
+
+  file_d.write("\t %s handler.%s(%s)\n" % 
+      ( return_flag, 
+        func_struct.GoName, 
+        ','.join([ param for param in param_name_list ]) ))    
 
   file_d.write("\t}\n")
   file_d.write("\t%s\n" % func_struct.TypeStruct.CReturn)
@@ -236,10 +249,14 @@ def DumpGoGetterFunctions(struct, func_struct, file_d, handled_type=None):
         getStructName(struct.name, type=None), 
         func_struct.TypeStruct.CgoName))
   file_d.write("\tif handler, ok := %sMap[unsafe.Pointer(self)]; ok {\n" % (struct.GoName))
-  file_d.write("\t\tret := handler.%s()\n" % (func_struct.GoName))
+  if func_struct.TypeStruct in handled_type:
+    file_d.write("\t\tret := handler.%s().%s\n" % (func_struct.GoName, cstruct_name))
+  else:
+    file_d.write("\t\tret := handler.%s()\n" % (func_struct.GoName))
   file_d.write("\t\tif ret != nil{\n")
-  if func_struct in handled_type:
-    file_d.write("\t\t\treturn ret.%s().%s\n" % (func_struct.GoName, cstruct_name))
+
+  if func_struct.TypeStruct in handled_type:#  or func_struct.TypeStruct.instance is 'ctype':
+    file_d.write("\t\t\treturn ret\n")
   else:
     file_d.write("\t\t\treturn %s\n" % (func_struct.TypeStruct.GoGenericVal))
   file_d.write("\t\t}\n")
