@@ -128,3 +128,39 @@ void initializecef_client ( cef_client_t * self){
 }
 //Generate by DumpCInitializer 
 
+int  CEF_CALLBACK on_before_popup(struct _cef_life_span_handler_t *  self, struct _cef_browser_t *  browser, struct _cef_frame_t *  frame, const cef_string_t *  target_url, const cef_string_t *  target_frame_name, const struct _cef_popup_features_t *  popupFeatures, struct _cef_window_info_t *  windowInfo, struct _cef_client_t **  client, struct _cef_browser_settings_t *  settings, int *  no_javascript_access){
+	return go_OnBeforePopup(self,browser,frame,target_url,target_frame_name,popupFeatures,windowInfo,client,settings,no_javascript_access);
+}
+//Generate by DumpFunctionAsHandler 
+
+void  CEF_CALLBACK on_after_created(struct _cef_life_span_handler_t *  self, struct _cef_browser_t *  browser){
+	return go_OnAfterCreated(self,browser);
+}
+//Generate by DumpFunctionAsHandler 
+
+int CEF_CALLBACK  run_modal (struct _cef_life_span_handler_t *  self, struct _cef_browser_t *  browser){
+	return 1;
+}
+//Generate by DumpFunctionAsAPI 
+
+int CEF_CALLBACK  do_close (struct _cef_life_span_handler_t *  self, struct _cef_browser_t *  browser){
+	return 1;
+}
+//Generate by DumpFunctionAsAPI 
+
+void  CEF_CALLBACK on_before_close(struct _cef_life_span_handler_t *  self, struct _cef_browser_t *  browser){
+	return go_OnBeforeClose(self,browser);
+}
+//Generate by DumpFunctionAsHandler 
+
+void initializecef_life_span_handler ( cef_life_span_handler_t * self){
+	self->base.size = sizeof(cef_life_span_handler_t);
+	initialize_cef_base((cef_base_t*) self);
+	self->on_before_popup = on_before_popup;
+	self->on_after_created = on_after_created;
+	self->run_modal = run_modal;
+	self->do_close = do_close;
+	self->on_before_close = on_before_close;
+}
+//Generate by DumpCInitializer 
+

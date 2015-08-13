@@ -4,3 +4,4 @@
 #include "include/capi/cef_client_capi.h"
 void initializecef_app ( cef_app_t * self);
 void initializecef_client ( cef_client_t * self);
+void initializecef_life_span_handler ( cef_life_span_handler_t * self);
