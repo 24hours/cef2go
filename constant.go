@@ -3,7 +3,6 @@ package chrome
 //#include <string.h>
 //#include <stdlib.h>
 //#include "include/capi/cef_app_capi.h"
-//#include "include/internal/cef_string.h"
 //#include "cef_base.h"
 import "C"
 import (
@@ -135,65 +134,37 @@ func NewSettings() Settings {
 	}
 }
 
-// func SettingsFromC(cefSettings *C.struct__cef_settings_t) Settings {
-// 	ret := NewSettings()
+func SettingsFromC(cefSettings *C.struct__cef_settings_t) Settings {
+	ret := NewSettings()
 
-// 	ret.SingleProcess = int(cef.Settings)
-// 	ret.NoSandbox = int(cef.no_sandbox)
+	ret.SingleProcess = int(cefSettings.single_process)
+	ret.NoSandbox = int(cefSettings.no_sandbox)
+	ret.BrowserSubprocessPath = fromCefStringCopy(&cefSettings.browser_subprocess_path)
+	ret.MultiThreadedMessageLoop = int(cefSettings.multi_threaded_message_loop)
+	ret.WindowlessRenderingEnabled = int(cefSettings.windowless_rendering_enabled)
+	ret.CommandLineArgsDisabled = int(cefSettings.command_line_args_disabled)
+	ret.CachePath = fromCefStringCopy(&cefSettings.cache_path)
+	ret.PersistSessionCookies = int(cefSettings.persist_session_cookies)
+	ret.CachePath = fromCefStringCopy(&cefSettings.cache_path)
+	ret.UserAgent = fromCefStringCopy(&cefSettings.user_agent)
+	ret.ProductVersion = fromCefStringCopy(&cefSettings.product_version)
+	ret.Locale = fromCefStringCopy(&cefSettings.locale)
+	ret.LogFile = fromCefStringCopy(&cefSettings.log_file)
+	ret.LogSeverity = int(cefSettings.log_severity)
+	ret.JavascriptFlags = fromCefStringCopy(&cefSettings.javascript_flags)
+	ret.ResourcesDirPath = fromCefStringCopy(&cefSettings.resources_dir_path)
+	ret.LocalesDirPath = fromCefStringCopy(&cefSettings.locales_dir_path)
 
-// 	if s.BrowserSubprocessPath != "" {
-// 		toCefStringCopy(s.BrowserSubprocessPath, &cefSettings.browser_subprocess_path)
-// 	}
+	ret.PackLoadingDisabled = int(cefSettings.pack_loading_disabled)
+	ret.RemoteDebuggingPort = int(cefSettings.remote_debugging_port)
+	ret.UncaughtExceptionStackSize = int(cefSettings.uncaught_exception_stack_size)
+	ret.ContextSafetyImplementation = int(cefSettings.context_safety_implementation)
+	ret.IgnoreCertificateErrors = int(cefSettings.ignore_certificate_errors)
+	ret.PackLoadingDisabled = int(cefSettings.pack_loading_disabled)
+	ret.BackgroundColor = int(cefSettings.background_color)
 
-// 	cefSettings.multi_threaded_message_loop = C.int(s.MultiThreadedMessageLoop)
-// 	cefSettings.windowless_rendering_enabled = C.int(s.WindowlessRenderingEnabled)
-// 	cefSettings.command_line_args_disabled = C.int(s.CommandLineArgsDisabled)
-
-// 	if s.CachePath != "" {
-// 		toCefStringCopy(s.CachePath, &cefSettings.cache_path)
-// 	}
-
-// 	cefSettings.persist_session_cookies = C.int(s.PersistSessionCookies)
-
-// 	if s.UserAgent != "" {
-// 		toCefStringCopy(s.UserAgent, &cefSettings.user_agent)
-// 	}
-
-// 	if s.ProductVersion != "" {
-// 		toCefStringCopy(s.ProductVersion, &cefSettings.product_version)
-// 	}
-
-// 	if s.Locale != "" {
-// 		toCefStringCopy(s.Locale, &cefSettings.locale)
-// 	}
-
-// 	if s.LogFile != "" {
-// 		toCefStringCopy(s.LogFile, &cefSettings.log_file)
-// 	}
-
-// 	cefSettings.log_severity = C.cef_log_severity_t(s.LogSeverity)
-
-// 	if s.JavascriptFlags != "" {
-// 		toCefStringCopy(s.JavascriptFlags, &cefSettings.javascript_flags)
-// 	}
-
-// 	if s.ResourcesDirPath != "" {
-// 		toCefStringCopy(s.ResourcesDirPath, &cefSettings.resources_dir_path)
-// 	}
-
-// 	if s.LocalesDirPath != "" {
-// 		toCefStringCopy(s.LocalesDirPath, &cefSettings.locales_dir_path)
-// 	}
-
-// 	cefSettings.pack_loading_disabled = C.int(s.PackLoadingDisabled)
-// 	cefSettings.remote_debugging_port = C.int(s.RemoteDebuggingPort)
-// 	cefSettings.uncaught_exception_stack_size = C.int(s.UncaughtExceptionStackSize)
-// 	cefSettings.context_safety_implementation = C.int(s.ContextSafetyImplementation)
-// 	cefSettings.ignore_certificate_errors = C.int(s.IgnoreCertificateErrors)
-// 	cefSettings.pack_loading_disabled = C.int(s.PackLoadingDisabled)
-// 	cefSettings.background_color = C.cef_color_t(s.BackgroundColor)
-
-// }
+	return ret
+}
 
 type CefState int
 
@@ -204,38 +175,39 @@ var (
 )
 
 type BrowserSettings struct {
-	StandardFontFamily          string
-	FixedFontFamily             string
-	SerifFontFamily             string
-	SansSerifFontFamily         string
-	CursiveFontFamily           string
-	FantasyFontFamily           string
-	DefaultFontSize             int
-	DefaultFixedFontSize        int
-	MinimumFontSize             int
-	MinimumLogicalFontSize      int
-	DefaultEncoding             string
-	RemoteFonts                 CefState
-	Javascript                  CefState
-	JavascriptOpenWindows       CefState
-	JavascriptCloseWindows      CefState
-	JavascriptAccessClipboard   CefState
-	JavascriptDomPaste          CefState
-	CaretBrowsing               CefState
-	Java                        CefState
-	Plugins                     CefState
-	UniversalAccessFromFileUrls CefState
-	FileAccessFromFileUrls      CefState
-	WebSecurity                 CefState
-	ImageLoading                CefState
-	ImageShrinkStandaloneToFit  CefState
-	TextAreaResize              CefState
-	TabToLinks                  CefState
-	LocalStorage                CefState
-	Databases                   CefState
-	ApplicationCache            CefState
-	Webgl                       CefState
-	BackgroundColor             uint32
+	StandardFontFamily               string
+	FixedFontFamily                  string
+	SerifFontFamily                  string
+	SansSerifFontFamily              string
+	CursiveFontFamily                string
+	FantasyFontFamily                string
+	DefaultFontSize                  int
+	DefaultFixedFontSize             int
+	MinimumFontSize                  int
+	MinimumLogicalFontSize           int
+	DefaultEncoding                  string
+	RemoteFonts                      CefState
+	Javascript                       CefState
+	JavascriptOpenWindows            CefState
+	JavascriptCloseWindows           CefState
+	JavascriptAccessClipboard        CefState
+	JavascriptDomPaste               CefState
+	CaretBrowsing                    CefState
+	Java                             CefState
+	Plugins                          CefState
+	UniversalAccessFromFileUrls      CefState
+	FileAccessFromFileUrls           CefState
+	WebSecurity                      CefState
+	ImageLoading                     CefState
+	ImageShrinkStandaloneToFit       CefState
+	TextAreaResize                   CefState
+	TabToLinks                       CefState
+	LocalStorage                     CefState
+	Databases                        CefState
+	ApplicationCache                 CefState
+	Webgl                            CefState
+	BackgroundColor                  int
+	constructed_by_NewBrowserSetting bool
 }
 
 const (
@@ -248,6 +220,9 @@ const (
 )
 
 func (b BrowserSettings) toC() *C.struct__cef_browser_settings_t {
+	if b.constructed_by_NewBrowserSetting == false {
+		log.Warn("BrowserSettings should be constructed by NewBrowserSettings() function")
+	}
 	var cefBrowserSettings *C.struct__cef_browser_settings_t
 	cefBrowserSettings = (*C.struct__cef_browser_settings_t)(
 		C.calloc(1, C.sizeof_struct__cef_browser_settings_t))
@@ -300,6 +275,85 @@ func (b BrowserSettings) toC() *C.struct__cef_browser_settings_t {
 	cefBrowserSettings.webgl = C.cef_state_t(b.Webgl)
 	cefBrowserSettings.background_color = C.cef_color_t(b.BackgroundColor)
 	return cefBrowserSettings
+}
+
+func NewBrowserSettings() BrowserSettings {
+	return BrowserSettings{
+		StandardFontFamily:               "",
+		FixedFontFamily:                  "",
+		SerifFontFamily:                  "",
+		SansSerifFontFamily:              "",
+		CursiveFontFamily:                "",
+		FantasyFontFamily:                "",
+		DefaultFontSize:                  0,
+		DefaultFixedFontSize:             0,
+		MinimumFontSize:                  0,
+		MinimumLogicalFontSize:           0,
+		DefaultEncoding:                  "ISO-8859-1",
+		RemoteFonts:                      STATE_DEFAULT,
+		Javascript:                       STATE_DEFAULT,
+		JavascriptOpenWindows:            STATE_DEFAULT,
+		JavascriptCloseWindows:           STATE_DEFAULT,
+		JavascriptAccessClipboard:        STATE_DEFAULT,
+		JavascriptDomPaste:               STATE_DEFAULT,
+		CaretBrowsing:                    STATE_DEFAULT,
+		Java:                             STATE_DEFAULT,
+		Plugins:                          STATE_DEFAULT,
+		UniversalAccessFromFileUrls:      STATE_DEFAULT,
+		FileAccessFromFileUrls:           STATE_DEFAULT,
+		WebSecurity:                      STATE_DEFAULT,
+		ImageLoading:                     STATE_DEFAULT,
+		ImageShrinkStandaloneToFit:       STATE_DEFAULT,
+		TextAreaResize:                   STATE_DEFAULT,
+		TabToLinks:                       STATE_DEFAULT,
+		LocalStorage:                     STATE_DEFAULT,
+		Databases:                        STATE_DEFAULT,
+		ApplicationCache:                 STATE_DEFAULT,
+		Webgl:                            STATE_DEFAULT,
+		BackgroundColor:                  -1,
+		constructed_by_NewBrowserSetting: true,
+	}
+}
+
+func BrowserSettingsFromC(cefBrowserSettings *C.struct__cef_browser_settings_t) BrowserSettings {
+	b := NewBrowserSettings()
+
+	b.StandardFontFamily = fromCefStringCopy(&cefBrowserSettings.standard_font_family)
+	b.FixedFontFamily = fromCefStringCopy(&cefBrowserSettings.fixed_font_family)
+	b.SerifFontFamily = fromCefStringCopy(&cefBrowserSettings.serif_font_family)
+	b.SansSerifFontFamily = fromCefStringCopy(&cefBrowserSettings.sans_serif_font_family)
+	b.CursiveFontFamily = fromCefStringCopy(&cefBrowserSettings.cursive_font_family)
+	b.FantasyFontFamily = fromCefStringCopy(&cefBrowserSettings.fantasy_font_family)
+
+	b.DefaultFontSize = int(cefBrowserSettings.default_font_size)
+	b.DefaultFixedFontSize = int(cefBrowserSettings.default_fixed_font_size)
+	b.MinimumFontSize = int(cefBrowserSettings.minimum_font_size)
+	b.MinimumLogicalFontSize = int(cefBrowserSettings.minimum_logical_font_size)
+
+	b.DefaultEncoding = fromCefStringCopy(&cefBrowserSettings.default_encoding)
+
+	b.RemoteFonts = CefState(cefBrowserSettings.remote_fonts)
+	b.Javascript = CefState(cefBrowserSettings.javascript)
+	b.JavascriptOpenWindows = CefState(cefBrowserSettings.javascript_open_windows)
+	b.JavascriptCloseWindows = CefState(cefBrowserSettings.javascript_close_windows)
+	b.JavascriptAccessClipboard = CefState(cefBrowserSettings.javascript_close_windows)
+	b.JavascriptDomPaste = CefState(cefBrowserSettings.javascript_dom_paste)
+	b.CaretBrowsing = CefState(cefBrowserSettings.caret_browsing)
+	b.Java = CefState(cefBrowserSettings.java)
+	b.Plugins = CefState(cefBrowserSettings.plugins)
+	b.UniversalAccessFromFileUrls = CefState(cefBrowserSettings.universal_access_from_file_urls)
+	b.FileAccessFromFileUrls = CefState(cefBrowserSettings.universal_access_from_file_urls)
+	b.WebSecurity = CefState(cefBrowserSettings.web_security)
+	b.ImageLoading = CefState(cefBrowserSettings.image_loading)
+	b.ImageShrinkStandaloneToFit = CefState(cefBrowserSettings.image_shrink_standalone_to_fit)
+	b.TextAreaResize = CefState(cefBrowserSettings.text_area_resize)
+	b.TabToLinks = CefState(cefBrowserSettings.tab_to_links)
+	b.LocalStorage = CefState(cefBrowserSettings.local_storage)
+	b.Databases = CefState(cefBrowserSettings.databases)
+	b.ApplicationCache = CefState(cefBrowserSettings.application_cache)
+	b.Webgl = CefState(cefBrowserSettings.webgl)
+	b.BackgroundColor = int(cefBrowserSettings.background_color)
+	return b
 }
 
 type CefErrorCode int
