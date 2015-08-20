@@ -1,18 +1,9 @@
-from enum import Enum
 from clang.cindex import Index, Config, CursorKind
-import sqlite3, re
+import sqlite3
 Config.set_library_path('/Library/Developer/CommandLineTools/usr/lib')
 
-class Struct(Enum):
-  HANDLER_PROVIDER = 0
-  HANDLER = 1
-  CEF_TYPE = 2
-
-class Function(Enum):
-  CALLBACK_EVENT = 0
-  HANDLER_GETTER = 1
-  STRUCT_METHOD = 2
-
+conn = sqlite3.connect(settings.db_name)
+c = conn.cursor()
 
 def node_info(node, parent):
   if node is None:
@@ -63,38 +54,19 @@ def dump_node(node, parent):
            'referenced' : node.referenced.hash if node.referenced is not None else 0,
            'children' : children }
 
-def getStructName(struct_name, type=Struct.HANDLER_PROVIDER):
-  if type is Struct.HANDLER_PROVIDER:
-    name = struct_name.split("_")
-    return '_'.join(name[1:-1])
-  else:
-    return re.search('cef[A-Za-z0-9\_]*', struct_name).group(0)
 
-def camelCase(struct_name, capital=False):
-  name = struct_name.split('_')
-  ret_list = []
-  for n in name:
-    ret_list.append(n[0].upper() + n[1:])
+def reset_db():
+  c.execute('DROP TABLE IF EXISTS node');
+  c.execute('''CREATE TABLE node
+             (hash Integer, parent_hash Integer, kind text, spelling text, type_spelling text, type_kind_spelling text, enum_value text, definition text, file text, line_no Integer, kind_id Integer)''')
+  conn.commit()
 
-  if capital is True:
-    return ''.join(ret_list)
-  else:
-    ret = ''.join(ret_list)
-    return ret[0].lower() + ret[1:]
-
-
-def getIdbyName(name, db_name):
-  conn = sqlite3.connect(db_name)
-  c = conn.cursor()
-  c.execute('SELECT DISTINCT * FROM node WHERE spelling = ? AND kind = ? ', (name,"CursorKind.TYPEDEF_DECL",))
-  reference = c.fetchone()
-
-  c.execute('SELECT DISTINCT * FROM node WHERE parent_hash = ? ', (reference[0],))
-  hash_id = c.fetchone()
-  c.close()
-  if  hash_id is None:
-    return reference[0]
-  else:
-    return hash_id[0]
-
-
+def save_node(node, parent):
+  c.execute('SELECT * FROM node WHERE hash=?', (node.hash, ))
+  
+  node_detail = node_info(node, parent)
+  c.execute('INSERT INTO node VALUES (?,?,?,?,?,?,?,?,?,?, ?)', node_detail)
+  conn.commit()
+  for child in node.get_children():
+    save_node(child, node)
+  return
